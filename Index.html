@@ -1,0 +1,707 @@
+<!doctype html>
+<html lang="en" class="h-full">
+ <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Scholaco - Scholarship Application Tracker</title>
+  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+  <script src="/_sdk/data_sdk.js"></script>
+  <script src="/_sdk/element_sdk.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;700&amp;family=Playfair+Display:wght@400;500;600;700&amp;family=Inter:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            maroon: {
+              50: '#fdf2f4',
+              100: '#fce7eb',
+              200: '#f9d0d9',
+              300: '#f4a9ba',
+              400: '#ec7a94',
+              500: '#df4d6f',
+              600: '#cb2d55',
+              700: '#a91e43',
+              800: '#800020',
+              900: '#6b1a35',
+              950: '#3d0a1a'
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    .font-display { font-family: 'Playfair Display', serif; }
+    .font-body { font-family: 'Inter', sans-serif; }
+    .font-wordmark { font-family: 'Montserrat', sans-serif; font-weight: 700; }
+    .font-tagline { font-family: 'Montserrat', sans-serif; font-weight: 300; }
+    
+    @keyframes float {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-20px); }
+    }
+    
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(30px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateX(-20px); }
+      to { opacity: 1; transform: translateX(0); }
+    }
+    
+    .animate-float { animation: float 6s ease-in-out infinite; }
+    .animate-fade-in-up { animation: fadeInUp 0.8s ease-out forwards; }
+    .animate-slide-in { animation: slideIn 0.5s ease-out forwards; }
+    
+    .glass-card {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(31, 69, 118, 0.1);
+    }
+    
+    .gradient-text {
+      background: linear-gradient(135deg, #1f4576 0%, #0f223b 50%, #1f4576 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    
+    .hero-gradient {
+      background: linear-gradient(135deg, #f0f6fc 0%, #ffffff 50%, #e1ecf9 100%);
+    }
+    
+    .card-hover {
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    
+    .card-hover:hover {
+      transform: translateY(-8px);
+      box-shadow: 0 25px 50px -12px rgba(31, 69, 118, 0.25);
+    }
+    
+    .btn-primary {
+      background: linear-gradient(135deg, #1f4576 0%, #152e4f 100%);
+      transition: all 0.3s ease;
+    }
+    
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 30px -5px rgba(31, 69, 118, 0.4);
+    }
+    
+    .input-focus:focus {
+      border-color: #1f4576;
+      box-shadow: 0 0 0 3px rgba(31, 69, 118, 0.1);
+    }
+    
+    .nav-link {
+      position: relative;
+    }
+    
+    .nav-link::after {
+      content: '';
+      position: absolute;
+      bottom: -4px;
+      left: 0;
+      width: 0;
+      height: 2px;
+      background: #1f4576;
+      transition: width 0.3s ease;
+    }
+    
+    .nav-link:hover::after {
+      width: 100%;
+    }
+
+    .page { display: none; }
+    .page.active { display: block; }
+    
+    .sidebar {
+      transition: transform 0.3s ease;
+    }
+    
+    .sidebar.collapsed {
+      transform: translateX(-100%);
+    }
+    
+    .dashboard-wrapper {
+      transition: margin-left 0.3s ease;
+    }
+    
+    .sidebar-item {
+      transition: all 0.3s ease;
+    }
+    
+    .sidebar-item:hover, .sidebar-item.active {
+      background: rgba(31, 69, 118, 0.1);
+      border-left: 3px solid #1f4576;
+    }
+    
+    .modal-backdrop {
+      background: rgba(0, 0, 0, 0.5);
+      backdrop-filter: blur(4px);
+    }
+    
+    .dashboard-view { display: none; }
+    .dashboard-view.block { display: block; }
+    .dashboard-view.hidden { display: none !important; }
+
+    @media (max-width: 768px) {
+      .sidebar {
+        position: fixed;
+        left: 0;
+        top: 0;
+        height: 100%;
+        z-index: 40;
+        width: 16rem;
+      }
+
+      .sidebar.collapsed {
+        transform: translateX(-100%);
+      }
+
+      .dashboard-wrapper {
+        margin-left: 0;
+      }
+
+      .sidebar-overlay {
+        display: none;
+      }
+
+      .sidebar-overlay.active {
+        display: block;
+        position: fixed;
+        inset: 0;
+        z-index: 30;
+        background: rgba(0, 0, 0, 0.5);
+      }
+    }
+
+    @media (min-width: 769px) {
+      .sidebar-overlay {
+        display: none !important;
+      }
+
+      .sidebar {
+        position: relative;
+        transform: translateX(0) !important;
+      }
+    }
+  </style>
+  <style>body { box-sizing: border-box; }</style>
+ </head>
+ <body class="h-full font-body bg-white text-gray-800 overflow-auto"><!-- Landing Page -->
+  <div id="landing-page" class="page active"><!-- Navigation -->
+   <!--<nav class="fixed top-0 left-0 right-0 z-50 bg-white/90 backdrop-blur-md border-b border-primary-100">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 py-4">
+     <div class="flex items-center justify-between">
+      <div class="flex flex-col">
+       <div class="flex items-baseline gap-0"><img src="images/logo-maroon.png" 
+     alt="Scholaco Logo" 
+     class="h-12 w-auto">
+      </div>-->
+      <!-- NAVIGATION -->
+  <nav class=" w-full shadow-sm relative">
+    <div class="flex items-center justify-between px-6 py-4 max-w-7xl mx-auto">
+      <!-- Logo -->
+  <div class="flex items-center">
+  <img src="images/logo-maroon.png"
+  alt="Scholaco Logo"
+  class="h-10 w-auto">
+  </div>
+  <!-- Navigation Links -->
+  <div class="flex items-center gap-4 hidden">
+  <a href="#" class="text-gray-700 hover:text-gray-900">Dashboard</a>
+  <a href="#" class="text-gray-700 hover:text-gray-900">Applications</a>
+  <a href="#" class="text-gray-700 hover:text-gray-900">Profile</a>
+  </div>
+<div class="hidden md:flex items-center gap-8 absolute left-1/2 transform -translate-x-1/2"><a href="#features" class="nav-link text-gray-600 hover:text-primary-800 font-medium">Features</a> <a href="#how-it-works" class="nav-link text-gray-600 hover:text-primary-800 font-medium">How It Works</a> <a href="#testimonials" class="nav-link text-gray-600 hover:text-primary-800 font-medium">Testimonials</a>
+      </div>
+      <div class="flex items-center gap-4 px-1 py-2"><button onclick="showPage('login-page')" class="hidden sm:inline text-primary-800 font-semibold hover:text-primary-600 transition-colors">Log In</button> <button onclick="showPage('signup-page')" class="btn-primary px-4 sm:px-6 py-2.5 rounded-full text-white font-semibold text-sm sm:text-base">Sign Up</button>
+      </div>
+    </div>
+  </nav>
+      
+     <!--</div>
+    </div>
+   </nav>--><!-- Hero Section -->
+   <section class="hero-gradient min-h-screen pt-24 relative overflow-hidden">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 py-20 relative z-10">
+     <div class="grid lg:grid-cols-2 gap-8 lg:gap-16 items-center"><!-- Hero Content -->
+      <div class="animate-fade-in-up">
+       <h1 class="font-display text-4xl sm:text-5xl lg:text-6xl font-bold leading-tight mb-6"><span class="gradient-text">Track Your Path</span> <br><span class="text-gray-800">to Scholarship</span> <br><span class="text-gray-800">Success</span></h1>
+       <p id="hero-tagline" class="text-lg sm:text-xl text-gray-600 mb-8 leading-relaxed max-w-lg">Your scholarship journey, organized. Never miss a deadline, track every application, and maximize your chances of funding your dreams.</p>
+       <div class="flex flex-col sm:flex-row gap-4 mb-12"><button id="cta-button" onclick="showPage('signup-page')" class="btn-primary px-6 sm:px-8 py-3 sm:py-4 rounded-full text-white font-semibold text-base sm:text-lg flex items-center justify-center gap-2 group"> <span>Get Started Free</span>
+         <svg class="w-5 h-5 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3" />
+         </svg></button> <button class="px-6 sm:px-8 py-3 sm:py-4 rounded-full border-2 border-primary-200 text-primary-800 font-semibold hover:bg-primary-50 transition-colors flex items-center justify-center gap-2">
+         <svg class="w-5 h-5" fill="currentColor" viewbox="0 0 24 24"><path d="M8 5v14l11-7z" />
+         </svg><span>Watch Demo</span> </button>
+       </div><!-- Stats -->
+       <div class="flex flex-wrap gap-6 sm:gap-8">
+        <div>
+         <div class="text-2xl sm:text-3xl font-bold text-primary-800">
+          $2.5M+
+         </div>
+         <div class="text-gray-500 text-xs sm:text-sm">
+          Scholarships Tracked
+         </div>
+        </div>
+        <div class="w-px bg-primary-200"></div>
+        <div>
+         <div class="text-2xl sm:text-3xl font-bold text-primary-800">
+          95%
+         </div>
+         <div class="text-gray-500 text-xs sm:text-sm">
+          Success Rate
+         </div>
+        </div>
+        <div class="w-px bg-primary-200"></div>
+        <div>
+         <div class="text-2xl sm:text-3xl font-bold text-primary-800">
+          4.9★
+         </div>
+         <div class="text-gray-500 text-xs sm:text-sm">
+          User Rating
+         </div>
+        </div>
+       </div>
+      </div><!-- Hero Visual -->
+      <div class="relative animate-fade-in-up hidden lg:block" style="animation-delay: 0.3s;">
+       <div class="glass-card rounded-3xl p-6 shadow-2xl"><!-- Mini Dashboard Preview -->
+        <div class="bg-gradient-to-br from-primary-800 to-primary-600 rounded-2xl p-4 mb-4">
+         <div class="flex items-center justify-between text-white mb-4"><span class="font-semibold">Your Progress</span> <span class="text-primary-200 text-sm">This Month</span>
+         </div>
+         <div class="grid grid-cols-3 gap-3">
+          <div class="bg-white/20 rounded-xl p-3 text-center">
+           <div class="text-2xl font-bold text-white">
+            12
+           </div>
+           <div class="text-xs text-primary-200">
+            Applications
+           </div>
+          </div>
+          <div class="bg-white/20 rounded-xl p-3 text-center">
+           <div class="text-2xl font-bold text-white">
+            5
+           </div>
+           <div class="text-xs text-primary-200">
+            In Progress
+           </div>
+          </div>
+          <div class="bg-white/20 rounded-xl p-3 text-center">
+           <div class="text-2xl font-bold text-white">
+            3
+           </div>
+           <div class="text-xs text-primary-200">
+            Awarded
+           </div>
+          </div>
+         </div>
+        </div><!-- Sample Cards -->
+        <div class="space-y-3">
+         <div class="bg-green-50 border border-green-200 rounded-xl p-4 flex items-center justify-between">
+          <div>
+           <div class="font-semibold text-gray-800">
+            Gates Scholarship
+           </div>
+           <div class="text-sm text-gray-500">
+            Full Tuition • Due in 5 days
+           </div>
+          </div><span class="px-3 py-1 bg-green-500 text-white text-xs font-semibold rounded-full">Submitted</span>
+         </div>
+         <div class="bg-yellow-50 border border-yellow-200 rounded-xl p-4 flex items-center justify-between">
+          <div>
+           <div class="font-semibold text-gray-800">
+            STEM Excellence Award
+           </div>
+           <div class="text-sm text-gray-500">
+            $15,000 • Due in 12 days
+           </div>
+          </div><span class="px-3 py-1 bg-yellow-500 text-white text-xs font-semibold rounded-full">In Progress</span>
+         </div>
+         <div class="bg-primary-50 border border-primary-200 rounded-xl p-4 flex items-center justify-between">
+          <div>
+           <div class="font-semibold text-gray-800">
+            National Merit
+           </div>
+           <div class="text-sm text-gray-500">
+            $10,000 • Due in 30 days
+           </div>
+          </div><span class="px-3 py-1 bg-primary-600 text-white text-xs font-semibold rounded-full">Not Started</span>
+         </div>
+        </div>
+       </div><!-- Floating Elements -->
+       <div class="absolute -top-4 -right-4 bg-white rounded-2xl p-4 shadow-xl animate-float">
+        <div class="flex items-center gap-3">
+         <div class="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
+          <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+          </svg>
+         </div>
+         <div>
+          <div class="text-sm font-semibold text-gray-800">
+           Congrats! 🎉
+          </div>
+          <div class="text-xs text-gray-500">
+           You got accepted!
+          </div>
+         </div>
+        </div>
+       </div>
+       <div class="absolute -bottom-4 -left-4 bg-white rounded-2xl p-4 shadow-xl animate-float" style="animation-delay: 1.5s;">
+        <div class="flex items-center gap-3">
+         <div class="w-10 h-10 bg-primary-100 rounded-full flex items-center justify-center">
+          <svg class="w-5 h-5 text-primary-600" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+          </svg>
+         </div>
+         <div>
+          <div class="text-sm font-semibold text-gray-800">
+           Reminder
+          </div>
+          <div class="text-xs text-gray-500">
+           Essay due tomorrow
+          </div>
+         </div>
+        </div>
+       </div>
+      </div>
+     </div>
+    </div>
+   </section><!-- Features Section -->
+   <section id="features" class="py-16 sm:py-24 bg-white">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6">
+     <div class="text-center mb-12 sm:mb-16"><span class="text-primary-600 font-semibold text-xs sm:text-sm uppercase tracking-wider">Features</span>
+      <h2 class="font-display text-3xl sm:text-4xl font-bold mt-4 mb-6">Everything You Need to <span class="gradient-text">Succeed</span></h2>
+      <p class="text-gray-600 max-w-2xl mx-auto text-base sm:text-lg">Powerful tools designed specifically for scholarship applicants to stay organized and maximize success.</p>
+     </div>
+     <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8"><!-- Feature 1 -->
+      <div class="glass-card rounded-2xl p-6 sm:p-8 card-hover">
+       <div class="w-14 h-14 bg-gradient-to-br from-primary-100 to-primary-200 rounded-2xl flex items-center justify-center mb-6">
+        <svg class="w-7 h-7 text-primary-700" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
+        </svg>
+       </div>
+       <h3 class="font-display text-xl font-bold mb-3">Smart Tracking</h3>
+       <p class="text-gray-600">Track every application from discovery to decision with our intuitive status system.</p>
+      </div><!-- Feature 2 -->
+      <div class="glass-card rounded-2xl p-6 sm:p-8 card-hover">
+       <div class="w-14 h-14 bg-gradient-to-br from-primary-100 to-primary-200 rounded-2xl flex items-center justify-center mb-6">
+        <svg class="w-7 h-7 text-primary-700" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+        </svg>
+       </div>
+       <h3 class="font-display text-xl font-bold mb-3">Email Integration</h3>
+       <p class="text-gray-600">Connect your Gmail or email app to automatically track responses and updates.</p>
+      </div><!-- Feature 3 -->
+      <div class="glass-card rounded-2xl p-6 sm:p-8 card-hover">
+       <div class="w-14 h-14 bg-gradient-to-br from-primary-100 to-primary-200 rounded-2xl flex items-center justify-center mb-6">
+        <svg class="w-7 h-7 text-primary-700" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+        </svg>
+       </div>
+       <h3 class="font-display text-xl font-bold mb-3">Smart Reminders</h3>
+       <p class="text-gray-600">Never miss a deadline with customizable reminders for every application.</p>
+      </div><!-- Feature 4 -->
+      <div class="glass-card rounded-2xl p-6 sm:p-8 card-hover">
+       <div class="w-14 h-14 bg-gradient-to-br from-primary-100 to-primary-200 rounded-2xl flex items-center justify-center mb-6">
+        <svg class="w-7 h-7 text-primary-700" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+        </svg>
+       </div>
+       <h3 class="font-display text-xl font-bold mb-3">Progress Analytics</h3>
+       <p class="text-gray-600">Visualize your progress with beautiful charts and actionable insights.</p>
+      </div><!-- Feature 5 -->
+      <div class="glass-card rounded-2xl p-6 sm:p-8 card-hover">
+       <div class="w-14 h-14 bg-gradient-to-br from-primary-100 to-primary-200 rounded-2xl flex items-center justify-center mb-6">
+        <svg class="w-7 h-7 text-primary-700" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+        </svg>
+       </div>
+       <h3 class="font-display text-xl font-bold mb-3">Deadline Calendar</h3>
+       <p class="text-gray-600">View all your deadlines in one place with our integrated calendar view.</p>
+      </div><!-- Feature 6 -->
+      <div class="glass-card rounded-2xl p-6 sm:p-8 card-hover">
+       <div class="w-14 h-14 bg-gradient-to-br from-primary-100 to-primary-200 rounded-2xl flex items-center justify-center mb-6">
+        <svg class="w-7 h-7 text-primary-700" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+        </svg>
+       </div>
+       <h3 class="font-display text-xl font-bold mb-3">Secure &amp; Private</h3>
+       <p class="text-gray-600">Your data is encrypted and never shared. Your scholarship journey stays private.</p>
+      </div>
+     </div>
+    </div>
+   </section><!-- How It Works -->
+   <section id="how-it-works" class="py-16 sm:py-24 bg-gradient-to-b from-primary-50 to-white">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6">
+     <div class="text-center mb-12 sm:mb-16"><span class="text-primary-600 font-semibold text-xs sm:text-sm uppercase tracking-wider">How It Works</span>
+      <h2 class="font-display text-3xl sm:text-4xl font-bold mt-4 mb-6">Three Steps to <span class="gradient-text">Organized Success</span></h2>
+     </div>
+     <div class="grid md:grid-cols-3 gap-8 relative"><!-- Connection Line -->
+      <div class="hidden md:block absolute top-20 left-1/4 right-1/4 h-0.5 bg-gradient-to-r from-primary-200 via-primary-400 to-primary-200"></div>
+      <div class="text-center relative">
+       <div class="w-16 h-16 bg-gradient-to-br from-primary-800 to-primary-600 rounded-full flex items-center justify-center text-white text-2xl font-bold mx-auto mb-6 relative z-10 shadow-lg">
+        1
+       </div>
+       <h3 class="font-display text-xl font-bold mb-3">Add Scholarships</h3>
+       <p class="text-gray-600">Quickly add any scholarship you're interested in with all the important details.</p>
+      </div>
+      <div class="text-center relative">
+       <div class="w-16 h-16 bg-gradient-to-br from-primary-800 to-primary-600 rounded-full flex items-center justify-center text-white text-2xl font-bold mx-auto mb-6 relative z-10 shadow-lg">
+        2
+       </div>
+       <h3 class="font-display text-xl font-bold mb-3">Track Progress</h3>
+       <p class="text-gray-600">Update statuses as you complete each application and watch your progress grow.</p>
+      </div>
+      <div class="text-center relative">
+       <div class="w-16 h-16 bg-gradient-to-br from-primary-800 to-primary-600 rounded-full flex items-center justify-center text-white text-2xl font-bold mx-auto mb-6 relative z-10 shadow-lg">
+        3
+       </div>
+       <h3 class="font-display text-xl font-bold mb-3">Get Funded</h3>
+       <p class="text-gray-600">Stay organized, never miss deadlines, and maximize your scholarship success.</p>
+      </div>
+     </div>
+    </div>
+   </section><!-- Testimonials -->
+   <section id="testimonials" class="py-16 sm:py-24 bg-white">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6">
+     <div class="text-center mb-12 sm:mb-16"><span class="text-primary-600 font-semibold text-xs sm:text-sm uppercase tracking-wider">Testimonials</span>
+      <h2 class="font-display text-3xl sm:text-4xl font-bold mt-4">Loved by <span class="gradient-text">Students</span></h2>
+     </div>
+     <div class="grid md:grid-cols-3 gap-8">
+      <div class="glass-card rounded-2xl p-6 sm:p-8 card-hover">
+       <div class="flex items-center gap-1 mb-4">
+        <svg class="w-5 h-5 text-yellow-400 fill-current" viewbox="0 0 20 20">
+         <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+        </svg>
+        <svg class="w-5 h-5 text-yellow-400 fill-current" viewbox="0 0 20 20">
+         <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+        </svg>
+        <svg class="w-5 h-5 text-yellow-400 fill-current" viewbox="0 0 20 20">
+         <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+        </svg>
+        <svg class="w-5 h-5 text-yellow-400 fill-current" viewbox="0 0 20 20">
+         <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+        </svg>
+        <svg class="w-5 h-5 text-yellow-400 fill-current" viewbox="0 0 20 20">
+         <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+        </svg>
+       </div>
+       <p class="text-gray-600 mb-6 italic text-sm sm:text-base">"Scholaco helped me track 20+ applications and I ended up winning 3 scholarships totaling $45,000. Best tool ever!"</p>
+       <div class="flex items-center gap-3">
+        <div class="w-12 h-12 bg-gradient-to-br from-primary-400 to-primary-600 rounded-full flex items-center justify-center text-white font-bold text-sm">
+         SM
+        </div>
+        <div>
+         <div class="font-semibold text-sm">
+          Sarah Mitchell
+         </div>
+         <div class="text-xs text-gray-500">
+          Stanford University
+         </div>
+        </div>
+       </div>
+      </div>
+      <div class="glass-card rounded-2xl p-6 sm:p-8 card-hover">
+       <div class="flex items-center gap-1 mb-4">
+        <svg class="w-5 h-5 text-yellow-400 fill-current" viewbox="0 0 20 20">
+         <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+        </svg>
+        <svg class="w-5 h-5 text-yellow-400 fill-current" viewbox="0 0 20 20">
+         <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+        </svg>
+        <svg class="w-5 h-5 text-yellow-400 fill-current" viewbox="0 0 20 20">
+         <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+        </svg>
+        <svg class="w-5 h-5 text-yellow-400 fill-current" viewbox="0 0 20 20">
+         <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+        </svg>
+        <svg class="w-5 h-5 text-yellow-400 fill-current" viewbox="0 0 20 20">
+         <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+        </svg>
+       </div>
+       <p class="text-gray-600 mb-6 italic text-sm sm:text-base">"The reminder feature saved me! I almost missed a $10,000 scholarship deadline but Scholaco had my back."</p>
+       <div class="flex items-center gap-3">
+        <div class="w-12 h-12 bg-gradient-to-br from-primary-400 to-primary-600 rounded-full flex items-center justify-center text-white font-bold text-sm">
+         JC
+        </div>
+        <div>
+         <div class="font-semibold text-sm">
+          James Chen
+         </div>
+         <div class="text-xs text-gray-500">
+          MIT
+         </div>
+        </div>
+       </div>
+      </div>
+      <div class="glass-card rounded-2xl p-6 sm:p-8 card-hover">
+       <div class="flex items-center gap-1 mb-4">
+        <svg class="w-5 h-5 text-yellow-400 fill-current" viewbox="0 0 20 20">
+         <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+        </svg>
+        <svg class="w-5 h-5 text-yellow-400 fill-current" viewbox="0 0 20 20">
+         <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+        </svg>
+        <svg class="w-5 h-5 text-yellow-400 fill-current" viewbox="0 0 20 20">
+         <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+        </svg>
+        <svg class="w-5 h-5 text-yellow-400 fill-current" viewbox="0 0 20 20">
+         <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+        </svg>
+        <svg class="w-5 h-5 text-yellow-400 fill-current" viewbox="0 0 20 20">
+         <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+        </svg>
+       </div>
+       <p class="text-gray-600 mb-6 italic text-sm sm:text-base">"As a first-gen student, navigating scholarships was overwhelming. Scholaco made it manageable and less stressful."</p>
+       <div class="flex items-center gap-3">
+        <div class="w-12 h-12 bg-gradient-to-br from-primary-400 to-primary-600 rounded-full flex items-center justify-center text-white font-bold text-sm">
+         MR
+        </div>
+        <div>
+         <div class="font-semibold text-sm">
+          Maria Rodriguez
+         </div>
+         <div class="text-xs text-gray-500">
+          Harvard University
+         </div>
+        </div>
+       </div>
+      </div>
+     </div>
+    </div>
+   </section><!-- CTA Section -->
+   <section class="py-16 sm:py-24 bg-gradient-to-br from-primary-800 to-primary-900 relative overflow-hidden">
+    <div class="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNmZmZmZmYiIGZpbGwtb3BhY2l0eT0iMC4wNSI+PHBhdGggZD0iTTM2IDM0djItSDI0di0yaDEyek0zNiAyNHYySDI0di0yaDEyeiIvPjwvZz48L2c+PC9zdmc+')] opacity-30"></div>
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 text-center relative z-10">
+     <h2 class="font-display text-3xl sm:text-4xl md:text-5xl font-bold text-white mb-4 sm:mb-6">Ready to Fund Your Future?</h2>
+     <p class="text-lg sm:text-xl text-primary-200 mb-8 sm:mb-10 max-w-2xl mx-auto">Join thousands of students who've simplified their scholarship journey. Start tracking today—it's free!</p><button onclick="showPage('signup-page')" class="bg-white text-primary-800 px-8 sm:px-10 py-3 sm:py-4 rounded-full font-bold text-base sm:text-lg hover:bg-primary-50 transition-all hover:shadow-2xl hover:-translate-y-1"> Get Started Now — It's Free </button>
+    </div>
+   </section><!-- Footer -->
+   <footer class="py-12 bg-gray-900 text-gray-400">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6">
+     <div class="flex flex-col md:flex-row justify-between items-center gap-6">
+      <div class="flex items-center">
+  <img src="images/logo-maroon.png" 
+       alt="Scholaco Logo" 
+       class="h-8 w-auto">
+</div>
+      <div class="flex gap-6 sm:gap-8 text-xs sm:text-sm"><a href="#" class="hover:text-white transition-colors">Privacy</a> <a href="#" class="hover:text-white transition-colors">Terms</a> <a href="#" class="hover:text-white transition-colors">Contact</a>
+      </div>
+      <div class="text-xs sm:text-sm">
+       © 2024 Scholaco. All rights reserved.
+      </div>
+     </div>
+    </div>
+   </footer>
+  </div><!-- Login Page -->
+  <div id="login-page" class="page">
+   <div class="min-h-screen hero-gradient flex items-center justify-center p-4">
+    <div class="w-full max-w-md">
+     <div class="text-center mb-8"><button onclick="showPage('landing-page')" class="inline-flex items-center gap-2 text-primary-600 hover:text-primary-800 mb-6 transition-colors">
+       <svg class="w-5 h-5" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+       </svg><span>Back to Home</span> </button>
+      <div class="flex flex-col mb-4">
+       <div class="flex items-baseline gap-0"><img src="images/logo-maroon.png" 
+     alt="Scholaco Logo" 
+     class="h-14 w-auto mx-auto">
+       </div><span class="font-tagline text-xs" style="color: #1F4576;">Track Your Path to Success</span>
+      </div>
+      <h1 class="font-display text-3xl font-bold text-gray-800">Welcome Back</h1>
+      <p class="text-gray-600 mt-2">Sign in to continue your scholarship journey</p>
+     </div>
+     <div class="glass-card rounded-2xl p-6 sm:p-8 shadow-xl">
+      <form id="login-form" class="space-y-6">
+       <div><label for="login-email" class="block text-sm font-medium text-gray-700 mb-2">Email Address</label> <input type="email" id="login-email" class="w-full px-4 py-3 rounded-xl border border-gray-200 input-focus outline-none transition-all" placeholder="you@example.com" required>
+       </div>
+       <div><label for="login-password" class="block text-sm font-medium text-gray-700 mb-2">Password</label> <input type="password" id="login-password" class="w-full px-4 py-3 rounded-xl border border-gray-200 input-focus outline-none transition-all" placeholder="•••••••••" required>
+       </div>
+       <div class="flex items-center justify-between"><label class="flex items-center gap-2 cursor-pointer"> <input type="checkbox" class="w-4 h-4 rounded border-gray-300 text-primary-600 focus:ring-primary-500"> <span class="text-sm text-gray-600">Remember me</span> </label> <a href="#" class="text-sm text-primary-600 hover:text-primary-800 font-medium">Forgot password?</a>
+       </div><button type="submit" class="w-full btn-primary py-4 rounded-xl text-white font-semibold text-lg"> Sign In </button>
+      </form>
+      <div class="mt-6">
+       <div class="relative">
+        <div class="absolute inset-0 flex items-center">
+         <div class="w-full border-t border-gray-200"></div>
+        </div>
+        <div class="relative flex justify-center text-sm"><span class="px-4 bg-white text-gray-500">Or continue with</span>
+        </div>
+       </div>
+       <div class="mt-6 grid grid-cols-2 gap-4"><button class="flex items-center justify-center gap-2 px-4 py-3 border border-gray-200 rounded-xl hover:bg-gray-50 transition-colors">
+         <svg class="w-5 h-5" viewbox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" /> <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" /> <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" /> <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
+         </svg><span class="text-sm font-medium text-gray-700 hidden sm:inline">Google</span> </button> <button class="flex items-center justify-center gap-2 px-4 py-3 border border-gray-200 rounded-xl hover:bg-gray-50 transition-colors">
+         <svg class="w-5 h-5" fill="currentColor" viewbox="0 0 24 24"><path d="M12 2C6.477 2 2 6.477 2 12c0 4.42 2.865 8.166 6.839 9.489.5.092.682-.217.682-.482 0-.237-.008-.866-.013-1.7-2.782.604-3.369-1.34-3.369-1.34-.454-1.156-1.11-1.464-1.11-1.464-.908-.62.069-.608.069-.608 1.003.07 1.531 1.03 1.531 1.03.892 1.529 2.341 1.087 2.91.831.092-.646.35-1.086.636-1.336-2.22-.253-4.555-1.11-4.555-4.943 0-1.091.39-1.984 1.029-2.683-.103-.253-.446-1.27.098-2.647 0 0 .84-.269 2.75 1.025A9.578 9.578 0 0112 6.836c.85.004 1.705.114 2.504.336 1.909-1.294 2.747-1.025 2.747-1.025.546 1.377.203 2.394.1 2.647.64.699 1.028 1.592 1.028 2.683 0 3.842-2.339 4.687-4.566 4.935.359.309.678.919.678 1.852 0 1.336-.012 2.415-.012 2.743 0 .267.18.578.688.48C19.138 20.163 22 16.418 22 12c0-5.523-4.477-10-10-10z" />
+         </svg><span class="text-sm font-medium text-gray-700 hidden sm:inline">GitHub</span> </button>
+       </div>
+      </div>
+      <p class="mt-8 text-center text-gray-600">Don't have an account? <button onclick="showPage('signup-page')" class="text-primary-600 hover:text-primary-800 font-semibold">Sign up free</button></p>
+     </div>
+    </div>
+   </div>
+  </div><!-- Sign Up Page -->
+  <div id="signup-page" class="page">
+   <div class="min-h-screen hero-gradient flex items-center justify-center p-4">
+    <div class="w-full max-w-md">
+     <div class="text-center mb-8"><button onclick="showPage('landing-page')" class="inline-flex items-center gap-2 text-primary-600 hover:text-primary-800 mb-6 transition-colors">
+       <svg class="w-5 h-5" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+       </svg><span>Back to Home</span> </button>
+      <div class="flex flex-col mb-4">
+       <div class="flex items-baseline gap-0"><img src="images/logo-maroon.png" 
+     alt="Scholaco Logo" 
+     class="h-10 w-auto">
+      </div>
+      <h1 class="font-display text-3xl font-bold text-gray-800">Create Your Account</h1>
+      <!--<p class="text-gray-600 mt-2">Start tracking your scholarship journey today</p>-->
+     </div>
+     <div class="glass-card rounded-2xl p-6 sm:p-8 shadow-xl">
+      <form id="signup-form" class="space-y-5">
+       <div class="grid grid-cols-2 gap-4">
+        <div><label for="signup-first" class="block text-sm font-medium text-gray-700 mb-2">First Name</label> <input type="text" id="signup-first" class="w-full px-4 py-3 rounded-xl border border-gray-200 input-focus outline-none transition-all" placeholder="John" required>
+        </div>
+        <div><label for="signup-last" class="block text-sm font-medium text-gray-700 mb-2">Last Name</label> <input type="text" id="signup-last" class="w-full px-4 py-3 rounded-xl border border-gray-200 input-focus outline-none transition-all" placeholder="Doe" required>
+        </div>
+       </div>
+       <div><label for="signup-email" class="block text-sm font-medium text-gray-700 mb-2">Email Address</label> <input type="email" id="signup-email" class="w-full px-4 py-3 rounded-xl border border-gray-200 input-focus outline-none transition-all" placeholder="you@example.com" required>
+       </div>
+       <div><label for="signup-password" class="block text-sm font-medium text-gray-700 mb-2">Password</label> <input type="password" id="signup-password" class="w-full px-4 py-3 rounded-xl border border-gray-200 input-focus outline-none transition-all" placeholder="••••••••" required>
+        <p class="mt-1 text-xs text-gray-500">Must be at least 8 characters</p>
+       </div><label class="flex items-start gap-3 cursor-pointer"> <input type="checkbox" class="w-4 h-4 mt-1 rounded border-gray-300 text-primary-600 focus:ring-primary-500" required> <span class="text-sm text-gray-600">I agree to the <a href="#" class="text-primary-600 hover:underline">Terms of Service</a> and <a href="#" class="text-primary-600 hover:underline">Privacy Policy</a></span> </label> <button type="submit" class="w-full btn-primary py-4 rounded-xl text-white font-semibold text-lg"> Create Account </button>
+      </form>
+      <div class="mt-6">
+       <div class="relative">
+        <div class="absolute inset-0 flex items-center">
+         <div class="w-full border-t border-gray-200"></div>
+        </div>
+        <div class="relative flex justify-center text-sm"><span class="px-4 bg-white text-gray-500">Or sign up with</span>
+        </div>
+       </div>
+       <div class="mt-6 grid grid-cols-2 gap-4"><button class="flex items-center justify-center gap-2 px-4 py-3 border border-gray-200 rounded-xl hover:bg-gray-50 transition-colors">
+         <svg class="w-5 h-5" viewbox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" /> <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" /> <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" /> <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
+         </svg><span class="text-sm font-medium text-gray-700 hidden sm:inline">Google</span> </button> <button class="flex items-center justify-center gap-2 px-4 py-3 border border-gray-200 rounded-xl hover:bg-gray-50 transition-colors">
+         <svg class="w-5 h-5" fill="currentColor" viewbox="0 0 24 24"><path d="M12 2C6.477 2 2 6.477 2 12c0 4.42 2.865 8.166 6.839 9.489.5.092.682-.217.682-.482 0-.237-.008-.866-.013-1.7-2.782.604-3.369-1.34-3.369-1.34-.454-1.156-1.11-1.464-1.11-1.464-.908-.62.069-.608.069-.608 1.003.07 1.531 1.03 1.531 1.03.892 1.529 2.341 1.087 2.91.831.092-.646.35-1.086.636-1.336-2.22-.253-4.555-1.11-4.555-4.943 0-1.091.39-1.984 1.029-2.683-.103-.253-.446-1.27.098-2.647 0 0 .84-.269 2.75 1.025A9.578 9.578 0 0112 6.836c.85.004 1.705.114 2.504.336 1.909-1.294 2.747-1.025 2.747-1.025.546 1.377.203 2.394.1 2.647.64.699 1.028 1.592 1.028 2.683 0 3.842-2.339 4.687-4.566 4.935.359.309.678.919.678 1.852 0 1.336-.012 2.415-.012 2.743 0 .267.18.578.688.48C19.138 20.163 22 16.418 22 12c0-5.523-4.477-10-10-10z" />
+         </svg><span class="text-sm font-medium text-gray-700 hidden sm:inline">GitHub</span> </button>
+       </div>
+      </div>
+      <p class="mt-8 text-center text-gray-600">Already have an account? <button onclick="showPage('login-page')" class="text-primary-600 hover:text-primary-800 font-semibold">Sign in</button></p>
+     </div>
+    </div>
+   </div>
+  </div>
+  <script>
+    // Page navigation
+    function showPage(pageId) {
+      document.querySelectorAll('.page').forEach(page => page.classList.remove('active'));
+      document.getElementById(pageId).classList.add('active');
+    }
+    
+    // Form handlers
+    document.getElementById('login-form').addEventListener('submit', (e) => {
+      e.preventDefault();
+      showPage('landing-page');
+    });
+    
+    document.getElementById('signup-form').addEventListener('submit', (e) => {
+      e.preventDefault();
+      showPage('landing-page');
+    });
+  </script>
+ <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9cdb2bada7fc6c94',t:'MTc3MTA1NzQ4Mi4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
