@@ -1,0 +1,1467 @@
+<!doctype html>
+<html lang="en" class="h-full">
+ <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Scholaco - Scholarship Application Tracker</title>
+  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+  <script src="/_sdk/data_sdk.js"></script>
+  <script src="/_sdk/element_sdk.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&amp;family=Inter:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            maroon: {
+              50: '#fdf2f4',
+              100: '#fce7eb',
+              200: '#f9d0d9',
+              300: '#f4a9ba',
+              400: '#ec7a94',
+              500: '#df4d6f',
+              600: '#cb2d55',
+              700: '#a91e43',
+              800: '#800020',
+              900: '#6b1a35',
+              950: '#3d0a1a'
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    .font-display { font-family: 'Playfair Display', serif; }
+    .font-body { font-family: 'Inter', sans-serif; }
+    
+    @keyframes float {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-20px); }
+    }
+    
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(30px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateX(-20px); }
+      to { opacity: 1; transform: translateX(0); }
+    }
+    
+    .animate-float { animation: float 6s ease-in-out infinite; }
+    .animate-fade-in-up { animation: fadeInUp 0.8s ease-out forwards; }
+    .animate-slide-in { animation: slideIn 0.5s ease-out forwards; }
+    
+    .glass-card {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(128, 0, 32, 0.1);
+    }
+    
+    .gradient-text {
+      background: linear-gradient(135deg, #800020 0%, #a91e43 50%, #800020 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    
+    .hero-gradient {
+      background: linear-gradient(135deg, #fdf2f4 0%, #ffffff 50%, #fce7eb 100%);
+    }
+    
+    .card-hover {
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    
+    .card-hover:hover {
+      transform: translateY(-8px);
+      box-shadow: 0 25px 50px -12px rgba(128, 0, 32, 0.25);
+    }
+    
+    .btn-primary {
+      background: linear-gradient(135deg, #800020 0%, #a91e43 100%);
+      transition: all 0.3s ease;
+    }
+    
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 30px -5px rgba(128, 0, 32, 0.4);
+    }
+    
+    .input-focus:focus {
+      border-color: #800020;
+      box-shadow: 0 0 0 3px rgba(128, 0, 32, 0.1);
+    }
+    
+    .nav-link {
+      position: relative;
+    }
+    
+    .nav-link::after {
+      content: '';
+      position: absolute;
+      bottom: -4px;
+      left: 0;
+      width: 0;
+      height: 2px;
+      background: #800020;
+      transition: width 0.3s ease;
+    }
+    
+    .nav-link:hover::after {
+      width: 100%;
+    }
+
+    .page { display: none; }
+    .page.active { display: block; }
+    
+    .sidebar {
+      transition: transform 0.3s ease;
+    }
+    
+    .sidebar.collapsed {
+      transform: translateX(-100%);
+    }
+    
+    .dashboard-wrapper {
+      transition: margin-left 0.3s ease;
+    }
+    
+    .sidebar-item {
+      transition: all 0.3s ease;
+    }
+    
+    .sidebar-item:hover, .sidebar-item.active {
+      background: rgba(128, 0, 32, 0.1);
+      border-left: 3px solid #800020;
+    }
+    
+    .modal-backdrop {
+      background: rgba(0, 0, 0, 0.5);
+      backdrop-filter: blur(4px);
+    }
+    
+    .dashboard-view { display: none; }
+    .dashboard-view.block { display: block; }
+    .dashboard-view.hidden { display: none !important; }
+
+    @media (max-width: 768px) {
+      .sidebar {
+        position: fixed;
+        left: 0;
+        top: 0;
+        height: 100%;
+        z-index: 40;
+        width: 16rem;
+      }
+
+      .sidebar.collapsed {
+        transform: translateX(-100%);
+      }
+
+      .dashboard-wrapper {
+        margin-left: 0;
+      }
+
+      .sidebar-overlay {
+        display: none;
+      }
+
+      .sidebar-overlay.active {
+        display: block;
+        position: fixed;
+        inset: 0;
+        z-index: 30;
+        background: rgba(0, 0, 0, 0.5);
+      }
+    }
+
+    @media (min-width: 769px) {
+      .sidebar-overlay {
+        display: none !important;
+      }
+
+      .sidebar {
+        position: relative;
+        transform: translateX(0) !important;
+      }
+    }
+  </style>
+  <style>body { box-sizing: border-box; }</style>
+ </head>
+ <body class="h-full font-body bg-white text-gray-800 overflow-auto"><!-- Landing Page -->
+  <div id="landing-page" class="page active"><!-- Navigation -->
+   <nav class="fixed top-0 left-0 right-0 z-50 bg-white/90 backdrop-blur-md border-b border-maroon-100">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 py-4">
+     <div class="flex items-center justify-between">
+      <div class="flex flex-col">
+       <div class="flex items-baseline gap-0"><img src="images/logo-maroon.png" 
+     alt="Scholaco Logo" 
+     class="h-10 w-auto">
+      </div>
+
+       </svg>
+       <div class="flex flex-col">
+        <!--<div class="flex items-baseline gap-0.5"><span class="font-display text-lg font-bold" style="color: #1e3a8a;">schola</span><span class="font-display text-lg font-bold text-green-600">co</span>
+        </div>-->
+       </div>
+      </div>
+      <div class="hidden md:flex items-center gap-8"><a href="#features" class="nav-link text-gray-600 hover:text-maroon-800 font-medium">Features</a> <a href="#how-it-works" class="nav-link text-gray-600 hover:text-maroon-800 font-medium">How It Works</a> <a href="#testimonials" class="nav-link text-gray-600 hover:text-maroon-800 font-medium">Testimonials</a>
+      </div>
+      <div class="flex items-center gap-4"><button onclick="showPage('login-page')" class="hidden sm:inline text-maroon-800 font-semibold hover:text-maroon-600 transition-colors">Log In</button> <button onclick="showPage('signup-page')" class="btn-primary px-4 sm:px-6 py-2.5 rounded-full text-white font-semibold text-sm sm:text-base">Sign Up</button>
+      </div>
+     </div>
+    </div>
+   </nav><!-- Hero Section -->
+   <section class="hero-gradient min-h-screen pt-24 relative overflow-hidden"><!-- Decorative Elements -->
+    <div class="absolute top-32 left-10 w-72 h-72 bg-maroon-200/30 rounded-full blur-3xl"></div>
+    <div class="absolute bottom-20 right-10 w-96 h-96 bg-maroon-100/40 rounded-full blur-3xl"></div>
+    <div class="absolute top-1/2 left-1/3 w-4 h-4 bg-maroon-400 rounded-full animate-float"></div>
+    <div class="absolute top-1/3 right-1/4 w-3 h-3 bg-maroon-300 rounded-full animate-float" style="animation-delay: 1s;"></div>
+    <div class="absolute bottom-1/3 left-1/4 w-5 h-5 bg-maroon-200 rounded-full animate-float" style="animation-delay: 2s;"></div>
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 py-20 relative z-10">
+     <div class="grid lg:grid-cols-2 gap-8 lg:gap-16 items-center"><!-- Hero Content -->
+      <div class="animate-fade-in-up">
+       <h1 class="font-display text-4xl sm:text-5xl lg:text-6xl font-bold leading-tight mb-6"><span class="gradient-text">Track Your Path</span> <br><span class="text-gray-800">to Scholarship</span> <br><span class="text-gray-800">Success</span></h1>
+       <p id="hero-tagline" class="text-lg sm:text-xl text-gray-600 mb-8 leading-relaxed max-w-lg">Your scholarship journey, organized. Never miss a deadline, track every application, and maximize your chances of funding your dreams.</p>
+       <div class="flex flex-col sm:flex-row gap-4 mb-12"><button id="cta-button" onclick="showPage('signup-page')" class="btn-primary px-6 sm:px-8 py-3 sm:py-4 rounded-full text-white font-semibold text-base sm:text-lg flex items-center justify-center gap-2 group"> <span>Get Started Free</span>
+         <svg class="w-5 h-5 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3" />
+         </svg></button> <button class="px-6 sm:px-8 py-3 sm:py-4 rounded-full border-2 border-maroon-200 text-maroon-800 font-semibold hover:bg-maroon-50 transition-colors flex items-center justify-center gap-2">
+         <svg class="w-5 h-5" fill="currentColor" viewbox="0 0 24 24"><path d="M8 5v14l11-7z" />
+         </svg><span>Watch Demo</span> </button>
+       </div><!-- Stats -->
+       <div class="flex flex-wrap gap-6 sm:gap-8">
+        <div>
+         <div class="text-2xl sm:text-3xl font-bold text-maroon-800">
+          $2.5M+
+         </div>
+         <div class="text-gray-500 text-xs sm:text-sm">
+          Scholarships Tracked
+         </div>
+        </div>
+        <div class="w-px bg-maroon-200"></div>
+        <div>
+         <div class="text-2xl sm:text-3xl font-bold text-maroon-800">
+          95%
+         </div>
+         <div class="text-gray-500 text-xs sm:text-sm">
+          Success Rate
+         </div>
+        </div>
+        <div class="w-px bg-maroon-200"></div>
+        <div>
+         <div class="text-2xl sm:text-3xl font-bold text-maroon-800">
+          4.9★
+         </div>
+         <div class="text-gray-500 text-xs sm:text-sm">
+          User Rating
+         </div>
+        </div>
+       </div>
+      </div><!-- Hero Visual -->
+      <div class="relative animate-fade-in-up hidden lg:block" style="animation-delay: 0.3s;">
+       <div class="glass-card rounded-3xl p-6 shadow-2xl"><!-- Mini Dashboard Preview -->
+        <div class="bg-gradient-to-br from-maroon-800 to-maroon-600 rounded-2xl p-4 mb-4">
+         <div class="flex items-center justify-between text-white mb-4"><span class="font-semibold">Your Progress</span> <span class="text-maroon-200 text-sm">This Month</span>
+         </div>
+         <div class="grid grid-cols-3 gap-3">
+          <div class="bg-white/20 rounded-xl p-3 text-center">
+           <div class="text-2xl font-bold text-white">
+            12
+           </div>
+           <div class="text-xs text-maroon-200">
+            Applications
+           </div>
+          </div>
+          <div class="bg-white/20 rounded-xl p-3 text-center">
+           <div class="text-2xl font-bold text-white">
+            5
+           </div>
+           <div class="text-xs text-maroon-200">
+            In Progress
+           </div>
+          </div>
+          <div class="bg-white/20 rounded-xl p-3 text-center">
+           <div class="text-2xl font-bold text-white">
+            3
+           </div>
+           <div class="text-xs text-maroon-200">
+            Awarded
+           </div>
+          </div>
+         </div>
+        </div><!-- Sample Cards -->
+        <div class="space-y-3">
+         <div class="bg-green-50 border border-green-200 rounded-xl p-4 flex items-center justify-between">
+          <div>
+           <div class="font-semibold text-gray-800">
+            Gates Scholarship
+           </div>
+           <div class="text-sm text-gray-500">
+            Full Tuition • Due in 5 days
+           </div>
+          </div><span class="px-3 py-1 bg-green-500 text-white text-xs font-semibold rounded-full">Submitted</span>
+         </div>
+         <div class="bg-yellow-50 border border-yellow-200 rounded-xl p-4 flex items-center justify-between">
+          <div>
+           <div class="font-semibold text-gray-800">
+            STEM Excellence Award
+           </div>
+           <div class="text-sm text-gray-500">
+            $15,000 • Due in 12 days
+           </div>
+          </div><span class="px-3 py-1 bg-yellow-500 text-white text-xs font-semibold rounded-full">In Progress</span>
+         </div>
+         <div class="bg-maroon-50 border border-maroon-200 rounded-xl p-4 flex items-center justify-between">
+          <div>
+           <div class="font-semibold text-gray-800">
+            National Merit
+           </div>
+           <div class="text-sm text-gray-500">
+            $10,000 • Due in 30 days
+           </div>
+          </div><span class="px-3 py-1 bg-maroon-600 text-white text-xs font-semibold rounded-full">Not Started</span>
+         </div>
+        </div>
+       </div><!-- Floating Elements -->
+       <div class="absolute -top-4 -right-4 bg-white rounded-2xl p-4 shadow-xl animate-float">
+        <div class="flex items-center gap-3">
+         <div class="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
+          <svg class="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+          </svg>
+         </div>
+         <div>
+          <div class="text-sm font-semibold text-gray-800">
+           Congrats! 🎉
+          </div>
+          <div class="text-xs text-gray-500">
+           You got accepted!
+          </div>
+         </div>
+        </div>
+       </div>
+       <div class="absolute -bottom-4 -left-4 bg-white rounded-2xl p-4 shadow-xl animate-float" style="animation-delay: 1.5s;">
+        <div class="flex items-center gap-3">
+         <div class="w-10 h-10 bg-maroon-100 rounded-full flex items-center justify-center">
+          <svg class="w-5 h-5 text-maroon-600" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+          </svg>
+         </div>
+         <div>
+          <div class="text-sm font-semibold text-gray-800">
+           Reminder
+          </div>
+          <div class="text-xs text-gray-500">
+           Essay due tomorrow
+          </div>
+         </div>
+        </div>
+       </div>
+      </div>
+     </div>
+    </div>
+   </section><!-- Features Section -->
+   <section id="features" class="py-16 sm:py-24 bg-white">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6">
+     <div class="text-center mb-12 sm:mb-16"><span class="text-maroon-600 font-semibold text-xs sm:text-sm uppercase tracking-wider">Features</span>
+      <h2 class="font-display text-3xl sm:text-4xl font-bold mt-4 mb-6">Everything You Need to <span class="gradient-text">Succeed</span></h2>
+      <p class="text-gray-600 max-w-2xl mx-auto text-base sm:text-lg">Powerful tools designed specifically for scholarship applicants to stay organized and maximize success.</p>
+     </div>
+     <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8"><!-- Feature 1 -->
+      <div class="glass-card rounded-2xl p-6 sm:p-8 card-hover">
+       <div class="w-14 h-14 bg-gradient-to-br from-maroon-100 to-maroon-200 rounded-2xl flex items-center justify-center mb-6">
+        <svg class="w-7 h-7 text-maroon-700" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
+        </svg>
+       </div>
+       <h3 class="font-display text-xl font-bold mb-3">Smart Tracking</h3>
+       <p class="text-gray-600">Track every application from discovery to decision with our intuitive status system.</p>
+      </div><!-- Feature 2 -->
+      <div class="glass-card rounded-2xl p-6 sm:p-8 card-hover">
+       <div class="w-14 h-14 bg-gradient-to-br from-maroon-100 to-maroon-200 rounded-2xl flex items-center justify-center mb-6">
+        <svg class="w-7 h-7 text-maroon-700" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+        </svg>
+       </div>
+       <h3 class="font-display text-xl font-bold mb-3">Email Integration</h3>
+       <p class="text-gray-600">Connect your Gmail or email app to automatically track responses and updates.</p>
+      </div><!-- Feature 3 -->
+      <div class="glass-card rounded-2xl p-6 sm:p-8 card-hover">
+       <div class="w-14 h-14 bg-gradient-to-br from-maroon-100 to-maroon-200 rounded-2xl flex items-center justify-center mb-6">
+        <svg class="w-7 h-7 text-maroon-700" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+        </svg>
+       </div>
+       <h3 class="font-display text-xl font-bold mb-3">Smart Reminders</h3>
+       <p class="text-gray-600">Never miss a deadline with customizable reminders for every application.</p>
+      </div><!-- Feature 4 -->
+      <div class="glass-card rounded-2xl p-6 sm:p-8 card-hover">
+       <div class="w-14 h-14 bg-gradient-to-br from-maroon-100 to-maroon-200 rounded-2xl flex items-center justify-center mb-6">
+        <svg class="w-7 h-7 text-maroon-700" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+        </svg>
+       </div>
+       <h3 class="font-display text-xl font-bold mb-3">Progress Analytics</h3>
+       <p class="text-gray-600">Visualize your progress with beautiful charts and actionable insights.</p>
+      </div><!-- Feature 5 -->
+      <div class="glass-card rounded-2xl p-6 sm:p-8 card-hover">
+       <div class="w-14 h-14 bg-gradient-to-br from-maroon-100 to-maroon-200 rounded-2xl flex items-center justify-center mb-6">
+        <svg class="w-7 h-7 text-maroon-700" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+        </svg>
+       </div>
+       <h3 class="font-display text-xl font-bold mb-3">Deadline Calendar</h3>
+       <p class="text-gray-600">View all your deadlines in one place with our integrated calendar view.</p>
+      </div><!-- Feature 6 -->
+      <div class="glass-card rounded-2xl p-6 sm:p-8 card-hover">
+       <div class="w-14 h-14 bg-gradient-to-br from-maroon-100 to-maroon-200 rounded-2xl flex items-center justify-center mb-6">
+        <svg class="w-7 h-7 text-maroon-700" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+        </svg>
+       </div>
+       <h3 class="font-display text-xl font-bold mb-3">Secure &amp; Private</h3>
+       <p class="text-gray-600">Your data is encrypted and never shared. Your scholarship journey stays private.</p>
+      </div>
+     </div>
+    </div>
+   </section><!-- How It Works -->
+   <section id="how-it-works" class="py-16 sm:py-24 bg-gradient-to-b from-maroon-50 to-white">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6">
+     <div class="text-center mb-12 sm:mb-16"><span class="text-maroon-600 font-semibold text-xs sm:text-sm uppercase tracking-wider">How It Works</span>
+      <h2 class="font-display text-3xl sm:text-4xl font-bold mt-4 mb-6">Three Steps to <span class="gradient-text">Organized Success</span></h2>
+     </div>
+     <div class="grid md:grid-cols-3 gap-8 relative"><!-- Connection Line -->
+      <div class="hidden md:block absolute top-20 left-1/4 right-1/4 h-0.5 bg-gradient-to-r from-maroon-200 via-maroon-400 to-maroon-200"></div>
+      <div class="text-center relative">
+       <div class="w-16 h-16 bg-gradient-to-br from-maroon-800 to-maroon-600 rounded-full flex items-center justify-center text-white text-2xl font-bold mx-auto mb-6 relative z-10 shadow-lg">
+        1
+       </div>
+       <h3 class="font-display text-xl font-bold mb-3">Add Scholarships</h3>
+       <p class="text-gray-600">Quickly add any scholarship you're interested in with all the important details.</p>
+      </div>
+      <div class="text-center relative">
+       <div class="w-16 h-16 bg-gradient-to-br from-maroon-800 to-maroon-600 rounded-full flex items-center justify-center text-white text-2xl font-bold mx-auto mb-6 relative z-10 shadow-lg">
+        2
+       </div>
+       <h3 class="font-display text-xl font-bold mb-3">Track Progress</h3>
+       <p class="text-gray-600">Update statuses as you complete each application and watch your progress grow.</p>
+      </div>
+      <div class="text-center relative">
+       <div class="w-16 h-16 bg-gradient-to-br from-maroon-800 to-maroon-600 rounded-full flex items-center justify-center text-white text-2xl font-bold mx-auto mb-6 relative z-10 shadow-lg">
+        3
+       </div>
+       <h3 class="font-display text-xl font-bold mb-3">Get Funded</h3>
+       <p class="text-gray-600">Stay organized, never miss deadlines, and maximize your scholarship success.</p>
+      </div>
+     </div>
+    </div>
+   </section><!-- Testimonials -->
+   <section id="testimonials" class="py-16 sm:py-24 bg-white">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6">
+     <div class="text-center mb-12 sm:mb-16"><span class="text-maroon-600 font-semibold text-xs sm:text-sm uppercase tracking-wider">Testimonials</span>
+      <h2 class="font-display text-3xl sm:text-4xl font-bold mt-4">Loved by <span class="gradient-text">Students</span></h2>
+     </div>
+     <div class="grid md:grid-cols-3 gap-8">
+      <div class="glass-card rounded-2xl p-6 sm:p-8 card-hover">
+       <div class="flex items-center gap-1 mb-4">
+        <svg class="w-5 h-5 text-yellow-400 fill-current" viewbox="0 0 20 20">
+         <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+        </svg>
+        <svg class="w-5 h-5 text-yellow-400 fill-current" viewbox="0 0 20 20">
+         <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+        </svg>
+        <svg class="w-5 h-5 text-yellow-400 fill-current" viewbox="0 0 20 20">
+         <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+        </svg>
+        <svg class="w-5 h-5 text-yellow-400 fill-current" viewbox="0 0 20 20">
+         <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+        </svg>
+        <svg class="w-5 h-5 text-yellow-400 fill-current" viewbox="0 0 20 20">
+         <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+        </svg>
+       </div>
+       <p class="text-gray-600 mb-6 italic text-sm sm:text-base">"Scholaco helped me track 20+ applications and I ended up winning 3 scholarships totaling $45,000. Best tool ever!"</p>
+       <div class="flex items-center gap-3">
+        <div class="w-12 h-12 bg-gradient-to-br from-maroon-400 to-maroon-600 rounded-full flex items-center justify-center text-white font-bold text-sm">
+         SM
+        </div>
+        <div>
+         <div class="font-semibold text-sm">
+          Sarah Mitchell
+         </div>
+         <div class="text-xs text-gray-500">
+          Stanford University
+         </div>
+        </div>
+       </div>
+      </div>
+      <div class="glass-card rounded-2xl p-6 sm:p-8 card-hover">
+       <div class="flex items-center gap-1 mb-4">
+        <svg class="w-5 h-5 text-yellow-400 fill-current" viewbox="0 0 20 20">
+         <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+        </svg>
+        <svg class="w-5 h-5 text-yellow-400 fill-current" viewbox="0 0 20 20">
+         <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+        </svg>
+        <svg class="w-5 h-5 text-yellow-400 fill-current" viewbox="0 0 20 20">
+         <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+        </svg>
+        <svg class="w-5 h-5 text-yellow-400 fill-current" viewbox="0 0 20 20">
+         <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+        </svg>
+        <svg class="w-5 h-5 text-yellow-400 fill-current" viewbox="0 0 20 20">
+         <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+        </svg>
+       </div>
+       <p class="text-gray-600 mb-6 italic text-sm sm:text-base">"The reminder feature saved me! I almost missed a $10,000 scholarship deadline but Scholaco had my back."</p>
+       <div class="flex items-center gap-3">
+        <div class="w-12 h-12 bg-gradient-to-br from-maroon-400 to-maroon-600 rounded-full flex items-center justify-center text-white font-bold text-sm">
+         JC
+        </div>
+        <div>
+         <div class="font-semibold text-sm">
+          James Chen
+         </div>
+         <div class="text-xs text-gray-500">
+          MIT
+         </div>
+        </div>
+       </div>
+      </div>
+      <div class="glass-card rounded-2xl p-6 sm:p-8 card-hover">
+       <div class="flex items-center gap-1 mb-4">
+        <svg class="w-5 h-5 text-yellow-400 fill-current" viewbox="0 0 20 20">
+         <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+        </svg>
+        <svg class="w-5 h-5 text-yellow-400 fill-current" viewbox="0 0 20 20">
+         <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+        </svg>
+        <svg class="w-5 h-5 text-yellow-400 fill-current" viewbox="0 0 20 20">
+         <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+        </svg>
+        <svg class="w-5 h-5 text-yellow-400 fill-current" viewbox="0 0 20 20">
+         <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+        </svg>
+        <svg class="w-5 h-5 text-yellow-400 fill-current" viewbox="0 0 20 20">
+         <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+        </svg>
+       </div>
+       <p class="text-gray-600 mb-6 italic text-sm sm:text-base">"As a first-gen student, navigating scholarships was overwhelming. Scholaco made it manageable and less stressful."</p>
+       <div class="flex items-center gap-3">
+        <div class="w-12 h-12 bg-gradient-to-br from-maroon-400 to-maroon-600 rounded-full flex items-center justify-center text-white font-bold text-sm">
+         MR
+        </div>
+        <div>
+         <div class="font-semibold text-sm">
+          Maria Rodriguez
+         </div>
+         <div class="text-xs text-gray-500">
+          Harvard University
+         </div>
+        </div>
+       </div>
+      </div>
+     </div>
+    </div>
+   </section><!-- CTA Section -->
+   <section class="py-16 sm:py-24 bg-gradient-to-br from-maroon-800 to-maroon-900 relative overflow-hidden">
+    <div class="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNmZmZmZmYiIGZpbGwtb3BhY2l0eT0iMC4wNSI+PHBhdGggZD0iTTM2IDM0djItSDI0di0yaDEyek0zNiAyNHYySDI0di0yaDEyeiIvPjwvZz48L2c+PC9zdmc+')] opacity-30"></div>
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 text-center relative z-10">
+     <h2 class="font-display text-3xl sm:text-4xl md:text-5xl font-bold text-white mb-4 sm:mb-6">Ready to Fund Your Future?</h2>
+     <p class="text-lg sm:text-xl text-maroon-200 mb-8 sm:mb-10 max-w-2xl mx-auto">Join thousands of students who've simplified their scholarship journey. Start tracking today—it's free!</p><button onclick="showPage('signup-page')" class="bg-white text-maroon-800 px-8 sm:px-10 py-3 sm:py-4 rounded-full font-bold text-base sm:text-lg hover:bg-maroon-50 transition-all hover:shadow-2xl hover:-translate-y-1"> Get Started Now — It's Free </button>
+    </div>
+   </section><!-- Footer -->
+   <footer class="py-12 bg-gray-900 text-gray-400">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6">
+     <div class="flex flex-col md:flex-row justify-between items-center gap-6">
+       <div class="flex items-baseline gap-0"><img src="images/logo-maroon.png" 
+     alt="Scholaco Logo" 
+     class="h-10 w-auto">
+      </div>
+       <div class="flex flex-col">
+        <!--<div class="flex items-baseline gap-0.5"><span class="font-display text-lg font-bold" style="color: #1e3a8a;">schola</span><span class="font-display text-lg font-bold text-green-600">co</span>
+        </div>-->
+       </div>
+      </div>
+      <div class="flex gap-6 sm:gap-8 text-xs sm:text-sm"><a href="#" class="hover:text-white transition-colors">Privacy</a> <a href="#" class="hover:text-white transition-colors">Terms</a> <a href="#" class="hover:text-white transition-colors">Contact</a>
+      </div>
+      <div class="text-xs sm:text-sm">
+       © 2024 Scholaco. All rights reserved.
+      </div>
+     </div>
+    </div>
+   </footer>
+  </div><!-- Login Page -->
+  <div id="login-page" class="page">
+   <div class="min-h-screen hero-gradient flex items-center justify-center p-4">
+    <div class="w-full max-w-md">
+     <div class="text-center mb-8"><button onclick="showPage('landing-page')" class="inline-flex items-center gap-2 text-maroon-600 hover:text-maroon-800 mb-6 transition-colors">
+       <svg class="w-5 h-5" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+       </svg><span>Back to Home</span> </button>
+      <div class="flex items-center justify-center gap-3 mb-4">
+       <div class="flex items-baseline gap-0"><img src="images/logo-maroon.png" 
+     alt="Scholaco Logo" 
+     class="h-10 w-auto">
+      </div>
+      </div>
+      <h1 class="font-display text-3xl font-bold text-gray-800">Welcome Back</h1>
+      <p class="text-gray-600 mt-2">Sign in to continue your scholarship journey</p>
+     </div>
+     <div class="glass-card rounded-2xl p-6 sm:p-8 shadow-xl">
+      <form id="login-form" class="space-y-6">
+       <div><label for="login-email" class="block text-sm font-medium text-gray-700 mb-2">Email Address</label> <input type="email" id="login-email" class="w-full px-4 py-3 rounded-xl border border-gray-200 input-focus outline-none transition-all" placeholder="you@example.com" required>
+       </div>
+       <div><label for="login-password" class="block text-sm font-medium text-gray-700 mb-2">Password</label> <input type="password" id="login-password" class="w-full px-4 py-3 rounded-xl border border-gray-200 input-focus outline-none transition-all" placeholder="••••••••" required>
+       </div>
+       <div class="flex items-center justify-between"><label class="flex items-center gap-2 cursor-pointer"> <input type="checkbox" class="w-4 h-4 rounded border-gray-300 text-maroon-600 focus:ring-maroon-500"> <span class="text-sm text-gray-600">Remember me</span> </label> <a href="#" class="text-sm text-maroon-600 hover:text-maroon-800 font-medium">Forgot password?</a>
+       </div><button type="submit" class="w-full btn-primary py-4 rounded-xl text-white font-semibold text-lg"> Sign In </button>
+      </form>
+      <div class="mt-6">
+       <div class="relative">
+        <div class="absolute inset-0 flex items-center">
+         <div class="w-full border-t border-gray-200"></div>
+        </div>
+        <div class="relative flex justify-center text-sm"><span class="px-4 bg-white text-gray-500">Or continue with</span>
+        </div>
+       </div>
+       <div class="mt-6 grid grid-cols-2 gap-4"><button class="flex items-center justify-center gap-2 px-4 py-3 border border-gray-200 rounded-xl hover:bg-gray-50 transition-colors">
+         <svg class="w-5 h-5" viewbox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" /> <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" /> <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" /> <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
+         </svg><span class="text-sm font-medium text-gray-700 hidden sm:inline">Google</span> </button> <button class="flex items-center justify-center gap-2 px-4 py-3 border border-gray-200 rounded-xl hover:bg-gray-50 transition-colors">
+         <svg class="w-5 h-5" fill="currentColor" viewbox="0 0 24 24"><path d="M12 2C6.477 2 2 6.477 2 12c0 4.42 2.865 8.166 6.839 9.489.5.092.682-.217.682-.482 0-.237-.008-.866-.013-1.7-2.782.604-3.369-1.34-3.369-1.34-.454-1.156-1.11-1.464-1.11-1.464-.908-.62.069-.608.069-.608 1.003.07 1.531 1.03 1.531 1.03.892 1.529 2.341 1.087 2.91.831.092-.646.35-1.086.636-1.336-2.22-.253-4.555-1.11-4.555-4.943 0-1.091.39-1.984 1.029-2.683-.103-.253-.446-1.27.098-2.647 0 0 .84-.269 2.75 1.025A9.578 9.578 0 0112 6.836c.85.004 1.705.114 2.504.336 1.909-1.294 2.747-1.025 2.747-1.025.546 1.377.203 2.394.1 2.647.64.699 1.028 1.592 1.028 2.683 0 3.842-2.339 4.687-4.566 4.935.359.309.678.919.678 1.852 0 1.336-.012 2.415-.012 2.743 0 .267.18.578.688.48C19.138 20.163 22 16.418 22 12c0-5.523-4.477-10-10-10z" />
+         </svg><span class="text-sm font-medium text-gray-700 hidden sm:inline">GitHub</span> </button>
+       </div>
+      </div>
+      <p class="mt-8 text-center text-gray-600">Don't have an account? <button onclick="showPage('signup-page')" class="text-maroon-600 hover:text-maroon-800 font-semibold">Sign up free</button></p>
+     </div>
+    </div>
+   </div>
+  </div><!-- Sign Up Page -->
+  <div id="signup-page" class="page">
+   <div class="min-h-screen hero-gradient flex items-center justify-center p-4">
+    <div class="w-full max-w-md">
+     <div class="text-center mb-8"><button onclick="showPage('landing-page')" class="inline-flex items-center gap-2 text-maroon-600 hover:text-maroon-800 mb-6 transition-colors">
+       <svg class="w-5 h-5" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+       </svg><span>Back to Home</span> </button>
+      <div class="flex items-center justify-center gap-3 mb-4">
+       <div class="flex items-baseline gap-0"><img src="images/logo-maroon.png" 
+     alt="Scholaco Logo" 
+     class="h-10 w-auto">
+      </div>
+      </div>
+      <h1 class="font-display text-3xl font-bold text-gray-800">Create Your Account</h1>
+      <p class="text-gray-600 mt-2">Start tracking your scholarship journey today</p>
+     </div>
+     <div class="glass-card rounded-2xl p-6 sm:p-8 shadow-xl">
+      <form id="signup-form" class="space-y-5">
+       <div class="grid grid-cols-2 gap-4">
+        <div><label for="signup-first" class="block text-sm font-medium text-gray-700 mb-2">First Name</label> <input type="text" id="signup-first" class="w-full px-4 py-3 rounded-xl border border-gray-200 input-focus outline-none transition-all" placeholder="John" required>
+        </div>
+        <div><label for="signup-last" class="block text-sm font-medium text-gray-700 mb-2">Last Name</label> <input type="text" id="signup-last" class="w-full px-4 py-3 rounded-xl border border-gray-200 input-focus outline-none transition-all" placeholder="Doe" required>
+        </div>
+       </div>
+       <div><label for="signup-email" class="block text-sm font-medium text-gray-700 mb-2">Email Address</label> <input type="email" id="signup-email" class="w-full px-4 py-3 rounded-xl border border-gray-200 input-focus outline-none transition-all" placeholder="you@example.com" required>
+       </div>
+       <div><label for="signup-password" class="block text-sm font-medium text-gray-700 mb-2">Password</label> <input type="password" id="signup-password" class="w-full px-4 py-3 rounded-xl border border-gray-200 input-focus outline-none transition-all" placeholder="••••••••" required>
+        <p class="mt-1 text-xs text-gray-500">Must be at least 8 characters</p>
+       </div><label class="flex items-start gap-3 cursor-pointer"> <input type="checkbox" class="w-4 h-4 mt-1 rounded border-gray-300 text-maroon-600 focus:ring-maroon-500" required> <span class="text-sm text-gray-600">I agree to the <a href="#" class="text-maroon-600 hover:underline">Terms of Service</a> and <a href="#" class="text-maroon-600 hover:underline">Privacy Policy</a></span> </label> <button type="submit" class="w-full btn-primary py-4 rounded-xl text-white font-semibold text-lg"> Create Account </button>
+      </form>
+      <div class="mt-6">
+       <div class="relative">
+        <div class="absolute inset-0 flex items-center">
+         <div class="w-full border-t border-gray-200"></div>
+        </div>
+        <div class="relative flex justify-center text-sm"><span class="px-4 bg-white text-gray-500">Or sign up with</span>
+        </div>
+       </div>
+       <div class="mt-6 grid grid-cols-2 gap-4"><button class="flex items-center justify-center gap-2 px-4 py-3 border border-gray-200 rounded-xl hover:bg-gray-50 transition-colors">
+         <svg class="w-5 h-5" viewbox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" /> <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" /> <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" /> <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
+         </svg><span class="text-sm font-medium text-gray-700 hidden sm:inline">Google</span> </button> <button class="flex items-center justify-center gap-2 px-4 py-3 border border-gray-200 rounded-xl hover:bg-gray-50 transition-colors">
+         <svg class="w-5 h-5" fill="currentColor" viewbox="0 0 24 24"><path d="M12 2C6.477 2 2 6.477 2 12c0 4.42 2.865 8.166 6.839 9.489.5.092.682-.217.682-.482 0-.237-.008-.866-.013-1.7-2.782.604-3.369-1.34-3.369-1.34-.454-1.156-1.11-1.464-1.11-1.464-.908-.62.069-.608.069-.608 1.003.07 1.531 1.03 1.531 1.03.892 1.529 2.341 1.087 2.91.831.092-.646.35-1.086.636-1.336-2.22-.253-4.555-1.11-4.555-4.943 0-1.091.39-1.984 1.029-2.683-.103-.253-.446-1.27.098-2.647 0 0 .84-.269 2.75 1.025A9.578 9.578 0 0112 6.836c.85.004 1.705.114 2.504.336 1.909-1.294 2.747-1.025 2.747-1.025.546 1.377.203 2.394.1 2.647.64.699 1.028 1.592 1.028 2.683 0 3.842-2.339 4.687-4.566 4.935.359.309.678.919.678 1.852 0 1.336-.012 2.415-.012 2.743 0 .267.18.578.688.48C19.138 20.163 22 16.418 22 12c0-5.523-4.477-10-10-10z" />
+         </svg><span class="text-sm font-medium text-gray-700 hidden sm:inline">GitHub</span> </button>
+       </div>
+      </div>
+      <p class="mt-8 text-center text-gray-600">Already have an account? <button onclick="showPage('login-page')" class="text-maroon-600 hover:text-maroon-800 font-semibold">Sign in</button></p>
+     </div>
+    </div>
+   </div>
+  </div><!-- Dashboard Page -->
+  <div id="dashboard-page" class="page">
+   <div class="min-h-screen bg-gray-50 flex"><!-- Sidebar Overlay -->
+    <div id="sidebar-overlay" class="sidebar-overlay" onclick="toggleSidebar()"></div><!-- Sidebar -->
+    <aside id="app-sidebar" class="sidebar w-64 bg-white border-r border-gray-200 flex flex-col fixed md:relative h-full z-40 md:z-0">
+     <div class="p-6 border-b border-gray-100">
+      <div class="flex items-center justify-between">
+       <div class="flex items-center gap-3">
+        <div class="flex items-baseline gap-0"><img src="images/logo-maroon.png" 
+     alt="Scholaco Logo" 
+     class="h-10 w-auto">
+      </div>
+        <div class="flex flex-col">
+         <!--<div class="flex items-baseline gap-0.5"><span class="font-display text-lg font-bold" style="color: #1e3a8a;">schola</span><span class="font-display text-lg font-bold text-green-600">co</span>
+         </div>-->
+        </div>
+       </div><button onclick="toggleSidebar()" class="md:hidden p-2 hover:bg-gray-100 rounded-lg">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+        </svg></button>
+      </div>
+     </div>
+     <nav class="flex-1 p-4 space-y-1"><button onclick="setDashboardView('overview')" class="sidebar-item active w-full flex items-center gap-3 px-4 py-3 rounded-xl text-left text-gray-700" data-view="overview">
+       <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
+       </svg><span class="font-medium">Dashboard</span> </button> <button onclick="setDashboardView('applications')" class="sidebar-item w-full flex items-center gap-3 px-4 py-3 rounded-xl text-left text-gray-700" data-view="applications">
+       <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+       </svg><span class="font-medium">Applications</span> </button> <button onclick="setDashboardView('calendar')" class="sidebar-item w-full flex items-center gap-3 px-4 py-3 rounded-xl text-left text-gray-700" data-view="calendar">
+       <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+       </svg><span class="font-medium">Calendar</span> </button> <button onclick="setDashboardView('email')" class="sidebar-item w-full flex items-center gap-3 px-4 py-3 rounded-xl text-left text-gray-700" data-view="email">
+       <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+       </svg><span class="font-medium">Email Integration</span> </button> <button onclick="setDashboardView('reminders')" class="sidebar-item w-full flex items-center gap-3 px-4 py-3 rounded-xl text-left text-gray-700" data-view="reminders">
+       <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+       </svg><span class="font-medium">Reminders</span> </button>
+     </nav>
+     <div class="p-4 border-t border-gray-100"><button onclick="showPage('landing-page')" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-gray-600 hover:bg-gray-50 transition-colors">
+       <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+       </svg><span class="font-medium">Sign Out</span> </button>
+     </div>
+    </aside><!-- Main Content -->
+    <main class="dashboard-wrapper flex-1 p-4 sm:p-8 w-full overflow-auto"><!-- Header -->
+     <header class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-0 mb-8">
+      <div class="flex-1">
+       <h1 class="font-display text-2xl sm:text-3xl font-bold text-gray-800">Welcome back, <span class="gradient-text">Sarah</span>! 👋</h1>
+       <p class="text-gray-500 mt-1 text-sm sm:text-base">Here's what's happening with your scholarships today.</p>
+      </div><button onclick="openModal('add-application')" class="btn-primary px-4 sm:px-6 py-3 rounded-xl text-white font-semibold flex items-center gap-2 w-full sm:w-auto justify-center flex-shrink-0">
+       <svg class="w-5 h-5" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+       </svg> Add Application </button>
+     </header><!-- Dashboard Overview -->
+     <div id="dashboard-overview" class="dashboard-view block"><!-- Stats Cards -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-8">
+       <div class="glass-card rounded-2xl p-6 card-hover">
+        <div class="flex items-center justify-between mb-4">
+         <div class="w-12 h-12 bg-maroon-100 rounded-xl flex items-center justify-center">
+          <svg class="w-6 h-6 text-maroon-600" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+          </svg>
+         </div><span class="text-xs text-green-600 font-semibold bg-green-100 px-2 py-1 rounded-full">+3 this week</span>
+        </div>
+        <div id="stat-total" class="text-3xl font-bold text-gray-800">
+         0
+        </div>
+        <div class="text-gray-500 text-sm">
+         Total Applications
+        </div>
+       </div>
+       <div class="glass-card rounded-2xl p-6 card-hover">
+        <div class="flex items-center justify-between mb-4">
+         <div class="w-12 h-12 bg-yellow-100 rounded-xl flex items-center justify-center">
+          <svg class="w-6 h-6 text-yellow-600" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+         </div>
+        </div>
+        <div id="stat-progress" class="text-3xl font-bold text-gray-800">
+         0
+        </div>
+        <div class="text-gray-500 text-sm">
+         In Progress
+        </div>
+       </div>
+       <div class="glass-card rounded-2xl p-6 card-hover">
+        <div class="flex items-center justify-between mb-4">
+         <div class="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center">
+          <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+         </div>
+        </div>
+        <div id="stat-awaiting" class="text-3xl font-bold text-gray-800">
+         0
+        </div>
+        <div class="text-gray-500 text-sm">
+         Awaiting Response
+        </div>
+       </div>
+       <div class="glass-card rounded-2xl p-6 card-hover">
+        <div class="flex items-center justify-between mb-4">
+         <div class="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center">
+          <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+         </div>
+        </div>
+        <div id="stat-potential" class="text-3xl font-bold text-gray-800">
+         $0
+        </div>
+        <div class="text-gray-500 text-sm">
+         Potential Awards
+        </div>
+       </div>
+      </div><!-- Recent Applications -->
+      <div class="glass-card rounded-2xl p-6">
+       <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-0 mb-6">
+        <h2 class="font-display text-xl font-bold">Recent Applications</h2><button onclick="setDashboardView('applications')" class="text-maroon-600 hover:text-maroon-800 font-medium text-sm">View All →</button>
+       </div>
+       <div id="recent-applications" class="space-y-4">
+        <div class="text-center py-12 text-gray-400">
+         <svg class="w-16 h-16 mx-auto mb-4 text-gray-300" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+         </svg>
+         <p class="text-lg font-medium">No applications yet</p>
+         <p class="text-sm">Click "Add Application" to get started!</p>
+        </div>
+       </div>
+      </div>
+     </div><!-- Applications View -->
+     <div id="dashboard-applications" class="dashboard-view hidden">
+      <div class="glass-card rounded-2xl p-6">
+       <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-0 mb-6">
+        <h2 class="font-display text-xl font-bold">All Applications</h2><select id="filter-status" class="px-4 py-2 rounded-xl border border-gray-200 text-sm focus:outline-none focus:border-maroon-500 w-full sm:w-auto"> <option value="all">All Status</option> <option value="not_started">Not Started</option> <option value="in_progress">In Progress</option> <option value="awaiting">Awaiting Response</option> </select>
+       </div>
+       <div id="all-applications" class="space-y-4">
+       </div>
+      </div>
+     </div><!-- Calendar View -->
+     <div id="dashboard-calendar" class="dashboard-view hidden">
+      <div class="glass-card rounded-2xl p-6">
+       <h2 class="font-display text-xl font-bold mb-6">Upcoming Deadlines</h2>
+       <div id="calendar-deadlines" class="space-y-4">
+        <div class="text-center py-12 text-gray-400">
+         <svg class="w-16 h-16 mx-auto mb-4 text-gray-300" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+         </svg>
+         <p class="text-lg font-medium">No deadlines set</p>
+         <p class="text-sm">Add applications with deadlines to see them here</p>
+        </div>
+       </div>
+      </div>
+     </div><!-- Email Integration View -->
+     <div id="dashboard-email" class="dashboard-view hidden">
+      <div class="glass-card rounded-2xl p-6">
+       <h2 class="font-display text-xl font-bold mb-6">Email Integration</h2>
+       <p class="text-gray-600 mb-8">Connect your email to automatically track scholarship responses and updates.</p>
+       <div class="grid md:grid-cols-2 gap-6">
+        <div class="border-2 border-dashed border-gray-200 rounded-2xl p-6 sm:p-8 text-center hover:border-maroon-300 transition-colors cursor-pointer group">
+         <div class="w-16 h-16 bg-red-50 rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform">
+          <svg class="w-10 h-10" viewbox="0 0 24 24"><path fill="#EA4335" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" /> <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" /> <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" /> <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
+          </svg>
+         </div>
+         <h3 class="font-semibold text-lg mb-2">Connect Gmail</h3>
+         <p class="text-gray-500 text-sm">Automatically scan for scholarship emails</p><button class="mt-4 px-6 py-2 bg-maroon-600 text-white rounded-full text-sm font-medium hover:bg-maroon-700 transition-colors">Connect</button>
+        </div>
+        <div class="border-2 border-dashed border-gray-200 rounded-2xl p-6 sm:p-8 text-center hover:border-maroon-300 transition-colors cursor-pointer group">
+         <div class="w-16 h-16 bg-blue-50 rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform">
+          <svg class="w-10 h-10" viewbox="0 0 24 24" fill="#0078D4"><path d="M22 6c0-1.1-.9-2-2-2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6zm-2 0l-8 5-8-5h16zm0 12H4V8l8 5 8-5v10z" />
+          </svg>
+         </div>
+         <h3 class="font-semibold text-lg mb-2">Connect Outlook</h3>
+         <p class="text-gray-500 text-sm">Sync your Microsoft email account</p><button class="mt-4 px-6 py-2 bg-maroon-600 text-white rounded-full text-sm font-medium hover:bg-maroon-700 transition-colors">Connect</button>
+        </div>
+        <div class="border-2 border-dashed border-gray-200 rounded-2xl p-6 sm:p-8 text-center hover:border-maroon-300 transition-colors cursor-pointer group">
+         <div class="w-16 h-16 bg-purple-50 rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform">
+          <svg class="w-10 h-10 text-purple-600" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+          </svg>
+         </div>
+         <h3 class="font-semibold text-lg mb-2">Connect Yahoo Mail</h3>
+         <p class="text-gray-500 text-sm">Link your Yahoo email account</p><button class="mt-4 px-6 py-2 bg-maroon-600 text-white rounded-full text-sm font-medium hover:bg-maroon-700 transition-colors">Connect</button>
+        </div>
+        <div class="border-2 border-dashed border-gray-200 rounded-2xl p-6 sm:p-8 text-center hover:border-maroon-300 transition-colors cursor-pointer group">
+         <div class="w-16 h-16 bg-gray-100 rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform">
+          <svg class="w-10 h-10 text-gray-600" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+          </svg>
+         </div>
+         <h3 class="font-semibold text-lg mb-2">Other Email</h3>
+         <p class="text-gray-500 text-sm">Connect via IMAP/SMTP</p><button class="mt-4 px-6 py-2 bg-maroon-600 text-white rounded-full text-sm font-medium hover:bg-maroon-700 transition-colors">Configure</button>
+        </div>
+       </div>
+      </div>
+     </div><!-- Reminders View -->
+     <div id="dashboard-reminders" class="dashboard-view hidden">
+      <div class="glass-card rounded-2xl p-6">
+       <h2 class="font-display text-xl font-bold mb-6">Reminders</h2>
+       <div id="reminders-list" class="space-y-4">
+        <div class="text-center py-12 text-gray-400">
+         <svg class="w-16 h-16 mx-auto mb-4 text-gray-300" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+         </svg>
+         <p class="text-lg font-medium">No reminders set</p>
+         <p class="text-sm">Add reminders to your applications to stay on track</p>
+        </div>
+       </div>
+      </div>
+     </div>
+    </main>
+   </div>
+  </div><!-- Add Application Modal -->
+  <div id="modal-add-application" class="fixed inset-0 z-50 hidden">
+   <div class="modal-backdrop absolute inset-0" onclick="closeModal('add-application')"></div>
+   <div class="absolute inset-0 flex items-center justify-center p-4 pointer-events-none">
+    <div class="glass-card rounded-2xl p-6 sm:p-8 w-full max-w-lg shadow-2xl pointer-events-auto animate-fade-in-up max-h-[90vh] overflow-y-auto">
+     <div class="flex items-center justify-between mb-6">
+      <h2 class="font-display text-2xl font-bold">Add New Application</h2><button onclick="closeModal('add-application')" class="w-10 h-10 rounded-full hover:bg-gray-100 flex items-center justify-center transition-colors flex-shrink-0">
+       <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+       </svg></button>
+     </div>
+     <form id="add-application-form" class="space-y-5">
+      <div><label for="app-name" class="block text-sm font-medium text-gray-700 mb-2">Scholarship Name *</label> <input type="text" id="app-name" class="w-full px-4 py-3 rounded-xl border border-gray-200 input-focus outline-none transition-all" placeholder="e.g., Gates Scholarship" required>
+      </div>
+      <div><label for="app-org" class="block text-sm font-medium text-gray-700 mb-2">Organization</label> <input type="text" id="app-org" class="w-full px-4 py-3 rounded-xl border border-gray-200 input-focus outline-none transition-all" placeholder="e.g., Bill &amp; Melinda Gates Foundation">
+      </div>
+      <div class="grid grid-cols-2 gap-4">
+       <div><label for="app-amount" class="block text-sm font-medium text-gray-700 mb-2">Award Amount</label> <input type="text" id="app-amount" class="w-full px-4 py-3 rounded-xl border border-gray-200 input-focus outline-none transition-all" placeholder="e.g., $10,000">
+       </div>
+       <div><label for="app-deadline" class="block text-sm font-medium text-gray-700 mb-2">Deadline</label> <input type="date" id="app-deadline" class="w-full px-4 py-3 rounded-xl border border-gray-200 input-focus outline-none transition-all">
+       </div>
+      </div>
+      <div><label for="app-status" class="block text-sm font-medium text-gray-700 mb-2">Status</label> <select id="app-status" class="w-full px-4 py-3 rounded-xl border border-gray-200 input-focus outline-none transition-all"> <option value="not_started">Not Started</option> <option value="in_progress">In Progress</option> <option value="awaiting">Completed / Awaiting Response</option> </select>
+      </div>
+      <div><label for="app-reminder" class="block text-sm font-medium text-gray-700 mb-2">Set Reminder</label> <input type="datetime-local" id="app-reminder" class="w-full px-4 py-3 rounded-xl border border-gray-200 input-focus outline-none transition-all">
+      </div>
+      <div><label for="app-notes" class="block text-sm font-medium text-gray-700 mb-2">Notes</label> <textarea id="app-notes" rows="3" class="w-full px-4 py-3 rounded-xl border border-gray-200 input-focus outline-none transition-all resize-none" placeholder="Any additional notes..."></textarea>
+      </div>
+      <div class="flex flex-col sm:flex-row gap-4 pt-4"><button type="button" onclick="closeModal('add-application')" class="flex-1 px-6 py-3 rounded-xl border border-gray-200 text-gray-700 font-semibold hover:bg-gray-50 transition-colors">Cancel</button> <button type="submit" id="add-app-btn" class="flex-1 btn-primary px-6 py-3 rounded-xl text-white font-semibold">Add Application</button>
+      </div>
+     </form>
+    </div>
+   </div>
+  </div><!-- Edit Application Modal -->
+  <div id="modal-edit-application" class="fixed inset-0 z-50 hidden">
+   <div class="modal-backdrop absolute inset-0" onclick="closeModal('edit-application')"></div>
+   <div class="absolute inset-0 flex items-center justify-center p-4 pointer-events-none">
+    <div class="glass-card rounded-2xl p-6 sm:p-8 w-full max-w-lg shadow-2xl pointer-events-auto animate-fade-in-up max-h-[90vh] overflow-y-auto">
+     <div class="flex items-center justify-between mb-6">
+      <h2 class="font-display text-2xl font-bold">Edit Application</h2><button onclick="closeModal('edit-application')" class="w-10 h-10 rounded-full hover:bg-gray-100 flex items-center justify-center transition-colors flex-shrink-0">
+       <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+       </svg></button>
+     </div>
+     <form id="edit-application-form" class="space-y-5"><input type="hidden" id="edit-app-id">
+      <div><label for="edit-app-name" class="block text-sm font-medium text-gray-700 mb-2">Scholarship Name *</label> <input type="text" id="edit-app-name" class="w-full px-4 py-3 rounded-xl border border-gray-200 input-focus outline-none transition-all" required>
+      </div>
+      <div><label for="edit-app-org" class="block text-sm font-medium text-gray-700 mb-2">Organization</label> <input type="text" id="edit-app-org" class="w-full px-4 py-3 rounded-xl border border-gray-200 input-focus outline-none transition-all">
+      </div>
+      <div class="grid grid-cols-2 gap-4">
+       <div><label for="edit-app-amount" class="block text-sm font-medium text-gray-700 mb-2">Award Amount</label> <input type="text" id="edit-app-amount" class="w-full px-4 py-3 rounded-xl border border-gray-200 input-focus outline-none transition-all">
+       </div>
+       <div><label for="edit-app-deadline" class="block text-sm font-medium text-gray-700 mb-2">Deadline</label> <input type="date" id="edit-app-deadline" class="w-full px-4 py-3 rounded-xl border border-gray-200 input-focus outline-none transition-all">
+       </div>
+      </div>
+      <div><label for="edit-app-status" class="block text-sm font-medium text-gray-700 mb-2">Status</label> <select id="edit-app-status" class="w-full px-4 py-3 rounded-xl border border-gray-200 input-focus outline-none transition-all"> <option value="not_started">Not Started</option> <option value="in_progress">In Progress</option> <option value="awaiting">Completed / Awaiting Response</option> </select>
+      </div>
+      <div><label for="edit-app-reminder" class="block text-sm font-medium text-gray-700 mb-2">Set Reminder</label> <input type="datetime-local" id="edit-app-reminder" class="w-full px-4 py-3 rounded-xl border border-gray-200 input-focus outline-none transition-all">
+      </div>
+      <div><label for="edit-app-notes" class="block text-sm font-medium text-gray-700 mb-2">Notes</label> <textarea id="edit-app-notes" rows="3" class="w-full px-4 py-3 rounded-xl border border-gray-200 input-focus outline-none transition-all resize-none"></textarea>
+      </div>
+      <div class="flex flex-col sm:flex-row gap-4 pt-4"><button type="button" onclick="closeModal('edit-application')" class="flex-1 px-6 py-3 rounded-xl border border-gray-200 text-gray-700 font-semibold hover:bg-gray-50 transition-colors">Cancel</button> <button type="submit" id="edit-app-btn" class="flex-1 btn-primary px-6 py-3 rounded-xl text-white font-semibold">Save Changes</button>
+      </div>
+     </form>
+    </div>
+   </div>
+  </div><!-- Toast Container -->
+  <div id="toast-container" class="fixed bottom-6 right-6 z-50 space-y-3"></div>
+  <script>
+    // Global state
+    let applications = [];
+    let currentEditApp = null;
+    let sidebarOpen = false;
+    
+    // Default config
+    const defaultConfig = {
+      app_tagline: 'Your scholarship journey, organized. Never miss a deadline, track every application, and maximize your chances of funding your dreams.',
+      cta_button_text: 'Get Started Free',
+      background_color: '#ffffff',
+      surface_color: '#fdf2f4',
+      text_color: '#1f2937',
+      primary_action_color: '#800020',
+      secondary_action_color: '#a91e43'
+    };
+    
+    // Data handler for SDK
+    const dataHandler = {
+      onDataChanged(data) {
+        applications = data;
+        renderApplications();
+        updateStats();
+      }
+    };
+    
+    // Initialize SDKs
+    async function initApp() {
+      // Initialize Element SDK
+      if (window.elementSdk) {
+        window.elementSdk.init({
+          defaultConfig,
+          onConfigChange: async (config) => {
+            const tagline = document.getElementById('hero-tagline');
+            const ctaButton = document.getElementById('cta-button');
+            
+            if (tagline) tagline.textContent = config.app_tagline || defaultConfig.app_tagline;
+            if (ctaButton) {
+              const span = ctaButton.querySelector('span');
+              if (span) span.textContent = config.cta_button_text || defaultConfig.cta_button_text;
+            }
+          },
+          mapToCapabilities: (config) => ({
+            recolorables: [
+              { get: () => config.background_color || defaultConfig.background_color, set: (v) => window.elementSdk.setConfig({ background_color: v }) },
+              { get: () => config.surface_color || defaultConfig.surface_color, set: (v) => window.elementSdk.setConfig({ surface_color: v }) },
+              { get: () => config.text_color || defaultConfig.text_color, set: (v) => window.elementSdk.setConfig({ text_color: v }) },
+              { get: () => config.primary_action_color || defaultConfig.primary_action_color, set: (v) => window.elementSdk.setConfig({ primary_action_color: v }) },
+              { get: () => config.secondary_action_color || defaultConfig.secondary_action_color, set: (v) => window.elementSdk.setConfig({ secondary_action_color: v }) }
+            ],
+            borderables: [],
+            fontEditable: undefined,
+            fontSizeable: undefined
+          }),
+          mapToEditPanelValues: (config) => new Map([
+            ['app_tagline', config.app_tagline || defaultConfig.app_tagline],
+            ['cta_button_text', config.cta_button_text || defaultConfig.cta_button_text]
+          ])
+        });
+      }
+      
+      // Initialize Data SDK
+      if (window.dataSdk) {
+        const result = await window.dataSdk.init(dataHandler);
+        if (!result.isOk) {
+          console.error('Failed to initialize Data SDK');
+        }
+      }
+    }
+    
+    // Page navigation
+    function showPage(pageId) {
+      document.querySelectorAll('.page').forEach(page => page.classList.remove('active'));
+      document.getElementById(pageId).classList.add('active');
+      
+      if (pageId === 'dashboard-page') {
+        renderApplications();
+        updateStats();
+        sidebarOpen = false;
+        closeSidebar();
+      }
+    }
+    
+    // Toggle sidebar
+    function toggleSidebar() {
+      sidebarOpen = !sidebarOpen;
+      const sidebar = document.getElementById('app-sidebar');
+      const overlay = document.getElementById('sidebar-overlay');
+      
+      if (sidebarOpen) {
+        sidebar.classList.remove('collapsed');
+        overlay.classList.add('active');
+      } else {
+        sidebar.classList.add('collapsed');
+        overlay.classList.remove('active');
+      }
+    }
+    
+    // Close sidebar
+    function closeSidebar() {
+      sidebarOpen = false;
+      document.getElementById('app-sidebar').classList.add('collapsed');
+      document.getElementById('sidebar-overlay').classList.remove('active');
+    }
+    
+    // Dashboard view navigation
+    function setDashboardView(view) {
+      document.querySelectorAll('.dashboard-view').forEach(v => v.classList.add('hidden'));
+      const viewEl = document.getElementById(`dashboard-${view}`);
+      if (viewEl) {
+        viewEl.classList.remove('hidden');
+        viewEl.classList.add('block');
+      }
+      
+      document.querySelectorAll('.sidebar-item').forEach(item => {
+        item.classList.remove('active');
+        if (item.dataset.view === view) item.classList.add('active');
+      });
+      
+      closeSidebar();
+      
+      if (view === 'calendar') renderCalendar();
+      if (view === 'reminders') renderReminders();
+    }
+    
+    // Modal functions
+    function openModal(type) {
+      document.getElementById(`modal-${type}`).classList.remove('hidden');
+    }
+    
+    function closeModal(type) {
+      document.getElementById(`modal-${type}`).classList.add('hidden');
+      if (type === 'add-application') {
+        document.getElementById('add-application-form').reset();
+      }
+    }
+    
+    // Toast notifications
+    function showToast(message, type = 'success') {
+      const container = document.getElementById('toast-container');
+      const toast = document.createElement('div');
+      toast.className = `flex items-center gap-3 px-5 py-4 rounded-xl shadow-lg animate-slide-in ${
+        type === 'success' ? 'bg-green-600' : type === 'error' ? 'bg-red-600' : 'bg-maroon-600'
+      } text-white`;
+      
+      toast.innerHTML = `
+        <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          ${type === 'success' 
+            ? '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>'
+            : '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>'}
+        </svg>
+        <span class="font-medium">${message}</span>
+      `;
+      
+      container.appendChild(toast);
+      setTimeout(() => {
+        toast.style.opacity = '0';
+        toast.style.transform = 'translateX(20px)';
+        setTimeout(() => toast.remove(), 300);
+      }, 3000);
+    }
+    
+    // Get status badge
+    function getStatusBadge(status) {
+      const configs = {
+        not_started: { bg: 'bg-maroon-100', text: 'text-maroon-700', label: 'Not Started' },
+        in_progress: { bg: 'bg-yellow-100', text: 'text-yellow-700', label: 'In Progress' },
+        awaiting: { bg: 'bg-blue-100', text: 'text-blue-700', label: 'Awaiting Response' }
+      };
+      const config = configs[status] || configs.not_started;
+      return `<span class="px-3 py-1 ${config.bg} ${config.text} text-xs font-semibold rounded-full">${config.label}</span>`;
+    }
+    
+    // Format date
+    function formatDate(dateStr) {
+      if (!dateStr) return 'No deadline';
+      const date = new Date(dateStr);
+      return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+    }
+    
+    // Calculate days until deadline
+    function daysUntil(dateStr) {
+      if (!dateStr) return null;
+      const deadline = new Date(dateStr);
+      const today = new Date();
+      const diff = Math.ceil((deadline - today) / (1000 * 60 * 60 * 24));
+      return diff;
+    }
+    
+    // Render applications
+    function renderApplications() {
+      const recentContainer = document.getElementById('recent-applications');
+      const allContainer = document.getElementById('all-applications');
+      
+      if (applications.length === 0) {
+        const emptyState = `
+          <div class="text-center py-12 text-gray-400">
+            <svg class="w-16 h-16 mx-auto mb-4 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+            </svg>
+            <p class="text-lg font-medium">No applications yet</p>
+            <p class="text-sm">Click "Add Application" to get started!</p>
+          </div>
+        `;
+        recentContainer.innerHTML = emptyState;
+        allContainer.innerHTML = emptyState;
+        return;
+      }
+      
+      const sortedApps = [...applications].sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+      
+      const renderCard = (app) => {
+        const days = daysUntil(app.deadline);
+        const daysText = days !== null 
+          ? (days < 0 ? 'Overdue' : days === 0 ? 'Due today' : `Due in ${days} days`)
+          : 'No deadline';
+        const daysClass = days !== null && days <= 3 ? 'text-red-600' : 'text-gray-500';
+        
+        return `
+          <div class="bg-white border border-gray-100 rounded-xl p-4 sm:p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between hover:shadow-md transition-all group gap-4 sm:gap-0" data-id="${app.__backendId}">
+            <div class="flex-1 min-w-0">
+              <div class="flex items-center gap-2 mb-1 flex-wrap">
+                <h3 class="font-semibold text-gray-800 truncate">${app.name}</h3>
+                ${getStatusBadge(app.status)}
+              </div>
+              <div class="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-4 text-xs sm:text-sm flex-wrap">
+                <span class="text-gray-500">${app.organization || 'No organization'}</span>
+                <span class="text-maroon-600 font-medium">${app.amount || 'Amount TBD'}</span>
+                <span class="${daysClass}">${daysText}</span>
+              </div>
+            </div>
+            <div class="flex items-center gap-2 opacity-0 sm:group-hover:opacity-100 transition-opacity self-end sm:self-auto">
+              <button onclick="editApplication('${app.__backendId}')" class="w-9 h-9 rounded-lg bg-gray-100 hover:bg-gray-200 flex items-center justify-center transition-colors flex-shrink-0">
+                <svg class="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                </svg>
+              </button>
+              <button onclick="confirmDelete('${app.__backendId}')" class="w-9 h-9 rounded-lg bg-red-50 hover:bg-red-100 flex items-center justify-center transition-colors delete-btn flex-shrink-0">
+                <svg class="w-4 h-4 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                </svg>
+              </button>
+            </div>
+          </div>
+        `;
+      };
+      
+      recentContainer.innerHTML = sortedApps.slice(0, 5).map(renderCard).join('');
+      allContainer.innerHTML = sortedApps.map(renderCard).join('');
+    }
+    
+    // Update stats
+    function updateStats() {
+      const total = applications.length;
+      const inProgress = applications.filter(a => a.status === 'in_progress').length;
+      const awaiting = applications.filter(a => a.status === 'awaiting').length;
+      
+      let potentialAwards = 0;
+      applications.forEach(app => {
+        if (app.amount) {
+          const amount = parseInt(app.amount.replace(/[^0-9]/g, '')) || 0;
+          potentialAwards += amount;
+        }
+      });
+      
+      document.getElementById('stat-total').textContent = total;
+      document.getElementById('stat-progress').textContent = inProgress;
+      document.getElementById('stat-awaiting').textContent = awaiting;
+      document.getElementById('stat-potential').textContent = `$${potentialAwards.toLocaleString()}`;
+    }
+    
+    // Render calendar
+    function renderCalendar() {
+      const container = document.getElementById('calendar-deadlines');
+      const appsWithDeadlines = applications.filter(a => a.deadline).sort((a, b) => new Date(a.deadline) - new Date(b.deadline));
+      
+      if (appsWithDeadlines.length === 0) {
+        container.innerHTML = `
+          <div class="text-center py-12 text-gray-400">
+            <svg class="w-16 h-16 mx-auto mb-4 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+            </svg>
+            <p class="text-lg font-medium">No deadlines set</p>
+            <p class="text-sm">Add applications with deadlines to see them here</p>
+          </div>
+        `;
+        return;
+      }
+      
+      container.innerHTML = appsWithDeadlines.map(app => {
+        const days = daysUntil(app.deadline);
+        const urgent = days !== null && days <= 7;
+        
+        return `
+          <div class="flex items-center gap-4 p-4 rounded-xl ${urgent ? 'bg-red-50 border border-red-200' : 'bg-white border border-gray-100'}">
+            <div class="w-14 h-14 rounded-xl ${urgent ? 'bg-red-100' : 'bg-maroon-100'} flex flex-col items-center justify-center flex-shrink-0">
+              <span class="text-xs ${urgent ? 'text-red-600' : 'text-maroon-600'} font-medium">${new Date(app.deadline).toLocaleDateString('en-US', { month: 'short' })}</span>
+              <span class="text-lg ${urgent ? 'text-red-700' : 'text-maroon-700'} font-bold">${new Date(app.deadline).getDate()}</span>
+            </div>
+            <div class="flex-1 min-w-0">
+              <h3 class="font-semibold text-gray-800 truncate">${app.name}</h3>
+              <p class="text-sm text-gray-500 truncate">${app.organization || 'No organization'} • ${app.amount || 'Amount TBD'}</p>
+            </div>
+            <div class="text-right flex-shrink-0">
+              <span class="text-sm font-medium ${urgent ? 'text-red-600' : 'text-gray-600'}">${days < 0 ? 'Overdue' : days === 0 ? 'Due today' : `${days} days left`}</span>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+    
+    // Render reminders
+    function renderReminders() {
+      const container = document.getElementById('reminders-list');
+      const appsWithReminders = applications.filter(a => a.reminder).sort((a, b) => new Date(a.reminder) - new Date(b.reminder));
+      
+      if (appsWithReminders.length === 0) {
+        container.innerHTML = `
+          <div class="text-center py-12 text-gray-400">
+            <svg class="w-16 h-16 mx-auto mb-4 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
+            </svg>
+            <p class="text-lg font-medium">No reminders set</p>
+            <p class="text-sm">Add reminders to your applications to stay on track</p>
+          </div>
+        `;
+        return;
+      }
+      
+      container.innerHTML = appsWithReminders.map(app => {
+        const reminderDate = new Date(app.reminder);
+        const isPast = reminderDate < new Date();
+        
+        return `
+          <div class="flex items-center gap-4 p-4 rounded-xl ${isPast ? 'bg-orange-50 border border-orange-200' : 'bg-white border border-gray-100'}">
+            <div class="w-12 h-12 rounded-xl ${isPast ? 'bg-orange-100' : 'bg-maroon-100'} flex items-center justify-center flex-shrink-0">
+              <svg class="w-6 h-6 ${isPast ? 'text-orange-600' : 'text-maroon-600'}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/>
+              </svg>
+            </div>
+            <div class="flex-1 min-w-0">
+              <h3 class="font-semibold text-gray-800 truncate">${app.name}</h3>
+              <p class="text-sm text-gray-500 truncate">${reminderDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })} at ${reminderDate.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })}</p>
+            </div>
+            <button onclick="clearReminder('${app.__backendId}')" class="text-sm text-gray-500 hover:text-red-600 transition-colors flex-shrink-0">
+              Dismiss
+            </button>
+          </div>
+        `;
+      }).join('');
+    }
+    
+    // Add application
+    async function addApplication(e) {
+      e.preventDefault();
+      
+      if (applications.length >= 999) {
+        showToast('Maximum limit of 999 applications reached', 'error');
+        return;
+      }
+      
+      const btn = document.getElementById('add-app-btn');
+      btn.disabled = true;
+      btn.textContent = 'Adding...';
+      
+      const newApp = {
+        name: document.getElementById('app-name').value,
+        organization: document.getElementById('app-org').value,
+        amount: document.getElementById('app-amount').value,
+        deadline: document.getElementById('app-deadline').value,
+        status: document.getElementById('app-status').value,
+        reminder: document.getElementById('app-reminder').value,
+        notes: document.getElementById('app-notes').value,
+        createdAt: new Date().toISOString()
+      };
+      
+      if (window.dataSdk) {
+        const result = await window.dataSdk.create(newApp);
+        if (result.isOk) {
+          showToast('Application added successfully!');
+          closeModal('add-application');
+        } else {
+          showToast('Failed to add application', 'error');
+        }
+      }
+      
+      btn.disabled = false;
+      btn.textContent = 'Add Application';
+    }
+    
+    // Edit application
+    function editApplication(id) {
+      const app = applications.find(a => a.__backendId === id);
+      if (!app) return;
+      
+      currentEditApp = app;
+      document.getElementById('edit-app-id').value = app.__backendId;
+      document.getElementById('edit-app-name').value = app.name || '';
+      document.getElementById('edit-app-org').value = app.organization || '';
+      document.getElementById('edit-app-amount').value = app.amount || '';
+      document.getElementById('edit-app-deadline').value = app.deadline || '';
+      document.getElementById('edit-app-status').value = app.status || 'not_started';
+      document.getElementById('edit-app-reminder').value = app.reminder || '';
+      document.getElementById('edit-app-notes').value = app.notes || '';
+      
+      openModal('edit-application');
+    }
+    
+    // Save edited application
+    async function saveApplication(e) {
+      e.preventDefault();
+      
+      const btn = document.getElementById('edit-app-btn');
+      btn.disabled = true;
+      btn.textContent = 'Saving...';
+      
+      const updatedApp = {
+        ...currentEditApp,
+        name: document.getElementById('edit-app-name').value,
+        organization: document.getElementById('edit-app-org').value,
+        amount: document.getElementById('edit-app-amount').value,
+        deadline: document.getElementById('edit-app-deadline').value,
+        status: document.getElementById('edit-app-status').value,
+        reminder: document.getElementById('edit-app-reminder').value,
+        notes: document.getElementById('edit-app-notes').value
+      };
+      
+      if (window.dataSdk) {
+        const result = await window.dataSdk.update(updatedApp);
+        if (result.isOk) {
+          showToast('Application updated successfully!');
+          closeModal('edit-application');
+        } else {
+          showToast('Failed to update application', 'error');
+        }
+      }
+      
+      btn.disabled = false;
+      btn.textContent = 'Save Changes';
+    }
+    
+    // Confirm delete
+    function confirmDelete(id) {
+      const btn = document.querySelector(`[data-id="${id}"] .delete-btn`);
+      if (btn.dataset.confirming) {
+        deleteApplication(id);
+      } else {
+        btn.dataset.confirming = 'true';
+        btn.innerHTML = `<span class="text-xs font-semibold text-red-600">Confirm?</span>`;
+        btn.classList.add('w-20');
+        setTimeout(() => {
+          if (btn.dataset.confirming) {
+            btn.dataset.confirming = '';
+            btn.classList.remove('w-20');
+            btn.innerHTML = `<svg class="w-4 h-4 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>`;
+          }
+        }, 3000);
+      }
+    }
+    
+    // Delete application
+    async function deleteApplication(id) {
+      const app = applications.find(a => a.__backendId === id);
+      if (!app || !window.dataSdk) return;
+      
+      const result = await window.dataSdk.delete(app);
+      if (result.isOk) {
+        showToast('Application deleted');
+      } else {
+        showToast('Failed to delete application', 'error');
+      }
+    }
+    
+    // Clear reminder
+    async function clearReminder(id) {
+      const app = applications.find(a => a.__backendId === id);
+      if (!app || !window.dataSdk) return;
+      
+      const updatedApp = { ...app, reminder: '' };
+      const result = await window.dataSdk.update(updatedApp);
+      if (result.isOk) {
+        showToast('Reminder dismissed');
+      }
+    }
+    
+    // Form handlers
+    document.getElementById('login-form').addEventListener('submit', (e) => {
+      e.preventDefault();
+      showPage('dashboard-page');
+      showToast('Welcome back!');
+    });
+    
+    document.getElementById('signup-form').addEventListener('submit', (e) => {
+      e.preventDefault();
+      showPage('dashboard-page');
+      showToast('Account created successfully!');
+    });
+    
+    document.getElementById('add-application-form').addEventListener('submit', addApplication);
+    document.getElementById('edit-application-form').addEventListener('submit', saveApplication);
+    
+    // Filter handler
+    document.getElementById('filter-status').addEventListener('change', (e) => {
+      const status = e.target.value;
+      const cards = document.querySelectorAll('#all-applications > div[data-id]');
+      
+      cards.forEach(card => {
+        const app = applications.find(a => a.__backendId === card.dataset.id);
+        if (status === 'all' || app.status === status) {
+          card.style.display = 'flex';
+        } else {
+          card.style.display = 'none';
+        }
+      });
+    });
+    
+    // Initialize app
+    initApp();
+  </script>
+ <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9cddb05f52dc7798',t:'MTc3MTA4Mzg4OS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
