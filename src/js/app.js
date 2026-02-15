@@ -90,6 +90,7 @@ export function showPage(pageId) {
   
   if (pageId === 'dashboard-page') {
     loadApplications();
+    updateWelcomeMessage(); // Update welcome message when showing dashboard
     closeSidebar();
   }
 }
@@ -534,3 +535,31 @@ window.closeModal = closeModal;
 window.editApplication = editApplication;
 window.confirmDelete = confirmDelete;
 window.clearReminder = clearReminder;
+
+// Email integration functions
+window.connectGmail = connectGmail;
+window.connectOutlook = connectOutlook;
+window.connectYahoo = connectYahoo;
+window.configureOtherEmail = configureOtherEmail;
+
+// Email Integration Functions
+export function connectGmail() {
+  showToast('Gmail integration coming soon! For now, you can manually check your emails.', 'info');
+  // TODO: Implement Gmail OAuth flow
+  // This would require backend API to handle OAuth tokens
+}
+
+export function connectOutlook() {
+  showToast('Outlook integration coming soon! For now, you can manually check your emails.', 'info');
+  // TODO: Implement Microsoft OAuth flow
+}
+
+export function connectYahoo() {
+  showToast('Yahoo Mail integration coming soon! For now, you can manually check your emails.', 'info');
+  // TODO: Implement Yahoo OAuth flow
+}
+
+export function configureOtherEmail() {
+  showToast('IMAP/SMTP configuration coming soon! For now, you can manually check your emails.', 'info');
+  // TODO: Implement IMAP/SMTP configuration
+}
