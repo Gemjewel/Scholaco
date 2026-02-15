@@ -18,15 +18,21 @@ export async function initApp() {
   // Check if user is logged in
   currentUser = await getCurrentUser();
   
-  if (currentUser && window.location.hash === '#dashboard') {
-    showPage('dashboard-page');
-    await loadApplications();
+  if (currentUser) {
+    // Update welcome message with user's first name
+    await updateWelcomeMessage();
+    
+    if (window.location.hash === '#dashboard') {
+      showPage('dashboard-page');
+      await loadApplications();
+    }
   }
   
   // Listen for auth changes
-  supabase.auth.onAuthStateChange((event, session) => {
+  supabase.auth.onAuthStateChange(async (event, session) => {
     if (event === 'SIGNED_IN') {
       currentUser = session.user;
+      await updateWelcomeMessage();
       showPage('dashboard-page');
       loadApplications();
     } else if (event === 'SIGNED_OUT') {
@@ -34,6 +40,32 @@ export async function initApp() {
       showPage('landing-page');
     }
   });
+}
+
+// Update welcome message with user's first name
+async function updateWelcomeMessage() {
+  if (!currentUser) return;
+  
+  try {
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('full_name')
+      .eq('id', currentUser.id)
+      .single();
+    
+    if (profile && profile.full_name) {
+      // Get first name from full name
+      const firstName = profile.full_name.split(' ')[0];
+      
+      // Update the welcome message
+      const welcomeHeader = document.querySelector('header h1');
+      if (welcomeHeader) {
+        welcomeHeader.innerHTML = `Welcome back, <span class="gradient-text">${firstName}</span>! 👋`;
+      }
+    }
+  } catch (error) {
+    console.error('Error fetching user profile:', error);
+  }
 }
 
 // Load applications from Supabase
