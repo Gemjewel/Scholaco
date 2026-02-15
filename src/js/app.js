@@ -57,11 +57,16 @@ async function updateWelcomeMessage() {
       // Get first name from full name
       const firstName = profile.full_name.split(' ')[0];
       
-      // Update the welcome message
-      const welcomeHeader = document.querySelector('header h1');
+      // Update the welcome message - be more specific with selector
+      const welcomeHeader = document.querySelector('#dashboard-page header h1');
       if (welcomeHeader) {
         welcomeHeader.innerHTML = `Welcome back, <span class="gradient-text">${firstName}</span>! 👋`;
+        console.log('Welcome message updated to:', firstName);
+      } else {
+        console.log('Welcome header element not found');
       }
+    } else {
+      console.log('No profile or full_name found');
     }
   } catch (error) {
     console.error('Error fetching user profile:', error);
@@ -89,8 +94,11 @@ export function showPage(pageId) {
   document.getElementById(pageId).classList.add('active');
   
   if (pageId === 'dashboard-page') {
-    loadApplications();
-    updateWelcomeMessage(); // Update welcome message when showing dashboard
+    // Wait a bit for DOM to be ready, then update welcome message
+    setTimeout(async () => {
+      await updateWelcomeMessage();
+      loadApplications();
+    }, 100);
     closeSidebar();
   }
 }
