@@ -3,7 +3,7 @@
  * Refactored from inline script
  */
 
-import { supabase, getCurrentUser, signIn, signUp, signOut } from './supabase.js';
+import { supabase, getCurrentUser, signIn, signUp, signOut, isSupabaseConfigured } from './supabase.js';
 import { getAllApplications, createApplication, updateApplication, deleteApplication, getStats } from './applications.js';
 import { sendWelcomeEmail, sendDeadlineReminder, sendApplicationSubmitted } from './brevo.js';
 
@@ -12,9 +12,17 @@ let applications = [];
 let currentEditApp = null;
 let sidebarOpen = false;
 let currentUser = null;
+let welcomeTimer = null;
+const WELCOME_TRIGGER_KEY = 'scholaco_welcome_trigger';
+const WELCOME_SEEN_KEY = 'scholaco_welcome_seen';
 
 // Initialize app
 export async function initApp() {
+  if (!isSupabaseConfigured()) {
+    showToast('Supabase is not configured. Please set your .env values.', 'error');
+    return;
+  }
+
   // Check if user is logged in
   currentUser = await getCurrentUser();
   
@@ -37,6 +45,7 @@ export async function initApp() {
       loadApplications();
     } else if (event === 'SIGNED_OUT') {
       currentUser = null;
+      clearWelcomeState();
       showPage('landing-page');
     }
   });
@@ -44,7 +53,7 @@ export async function initApp() {
 
 // Update welcome message with user's first name
 async function updateWelcomeMessage() {
-  if (!currentUser) return;
+  if (!currentUser || !supabase) return;
   
   try {
     const { data: profile } = await supabase
@@ -126,20 +135,51 @@ export function closeSidebar() {
 
 // Dashboard view navigation
 export function setDashboardView(view) {
-  document.querySelectorAll('.dashboard-view').forEach(v => v.classList.add('hidden'));
+  document.querySelectorAll('.dashboard-view').forEach(v => {
+    v.classList.add('hidden');
+    v.classList.remove('block');
+  });
   const viewEl = document.getElementById(`dashboard-${view}`);
   if (viewEl) {
     viewEl.classList.remove('hidden');
     viewEl.classList.add('block');
   }
+
+  const welcomeHeader = document.getElementById('welcome-header');
+  if (welcomeHeader) {
+    const leftContent = welcomeHeader.querySelector('.welcome-content');
+
+    const shouldShowInOverview = view === 'overview' && shouldShowWelcome();
+
+    if (shouldShowInOverview) {
+      welcomeHeader.style.display = '';
+      if (leftContent) leftContent.style.display = '';
+
+      if (welcomeTimer) {
+        clearTimeout(welcomeTimer);
+      }
+      welcomeTimer = setTimeout(() => {
+        closeWelcomePopup();
+      }, 7000);
+    } else {
+      welcomeHeader.style.display = 'none';
+      if (leftContent) leftContent.style.display = 'none';
+      if (welcomeTimer) {
+        clearTimeout(welcomeTimer);
+        welcomeTimer = null;
+      }
+    }
+  }
   
+  // Add Application button always visible on dashboard page (all views)
+
   document.querySelectorAll('.sidebar-item').forEach(item => {
     item.classList.remove('active');
     if (item.dataset.view === view) item.classList.add('active');
   });
-  
+
   closeSidebar();
-  
+
   if (view === 'calendar') renderCalendar();
   if (view === 'reminders') renderReminders();
 }
@@ -154,6 +194,17 @@ export function closeModal(type) {
   if (type === 'add-application') {
     document.getElementById('add-application-form').reset();
   }
+}
+
+// Close the welcome popup immediately and clear timer
+export function closeWelcomePopup() {
+  const welcomeHeader = document.getElementById('welcome-header');
+  if (!welcomeHeader) return;
+  const leftContent = welcomeHeader.querySelector('.welcome-content');
+  if (leftContent) leftContent.style.display = 'none';
+  welcomeHeader.style.display = 'none';
+  if (welcomeTimer) { clearTimeout(welcomeTimer); welcomeTimer = null; }
+  markWelcomeSeen();
 }
 
 // Toast notifications
@@ -360,11 +411,23 @@ function renderReminders() {
     `;
   }).join('');
 }
+// ── Payment flow ───────────────────────────────────────────────────────────────
+// Store pending form data in sessionStorage, redirect to payment page
+function goToPayment(actionType, formData) {
+  sessionStorage.setItem("scholaco_pending_action", JSON.stringify({
+    type: actionType,
+    data: formData
+  }));
+  window.location.href = "payment.html";
+}
 
-// Add application
+// Add application — collect form data then redirect to payment
 export async function addApplication(e) {
   e.preventDefault();
-  
+  if (applications.length >= 999) {
+    showToast("Maximum limit of 999 applications reached", "error");
+    return;
+  }
   const btn = document.getElementById('add-app-btn');
   btn.disabled = true;
   btn.textContent = 'Adding...';
@@ -391,6 +454,9 @@ export async function addApplication(e) {
   
   btn.disabled = false;
   btn.textContent = 'Add Application';
+  closeModal("add-application");
+  // redirect to payment if needed — pass the collected appData
+  goToPayment("add_application", appData);
 }
 
 // Edit application
@@ -502,8 +568,10 @@ export async function handleLogin(e) {
   if (error) {
     showToast(error.message, 'error');
   } else {
+    setWelcomeTrigger();
     showToast('Welcome back!');
     showPage('dashboard-page');
+    setDashboardView('overview');
   }
 }
 
@@ -522,19 +590,22 @@ export async function handleSignup(e) {
   if (error) {
     showToast(error.message, 'error');
   } else {
+    setWelcomeTrigger();
     showToast('Account created successfully!');
     await sendWelcomeEmail(email, fullName);
     showPage('dashboard-page');
+    setDashboardView('overview');
   }
 }
 
 export async function handleSignOut() {
+  clearWelcomeState();
+  // Sign out from Supabase and clear session
   await signOut();
-  showPage('landing-page');
-  showToast('Signed out successfully');
 }
 
-// Make functions available globally for onclick handlers
+// Make functions available globally for backwards compatibility
+// (only those still used by old inline handlers if any remain)
 window.showPage = showPage;
 window.toggleSidebar = toggleSidebar;
 window.setDashboardView = setDashboardView;
@@ -543,6 +614,103 @@ window.closeModal = closeModal;
 window.editApplication = editApplication;
 window.confirmDelete = confirmDelete;
 window.clearReminder = clearReminder;
+window.closeWelcomePopup = closeWelcomePopup;
+// Also expose form and lifecycle handlers used by inline scripts
+window.initApp = initApp;
+window.addApplication = addApplication;
+window.saveApplication = saveApplication;
+window.loadApplications = loadApplications;
+window.createApplication = createApplication;
+window.updateApplication = updateApplication;
+
+function wireDashboardActions() {
+  document.querySelectorAll('[data-view]').forEach(el => {
+    el.addEventListener('click', () => setDashboardView(el.dataset.view));
+  });
+
+  document.querySelectorAll('[data-modal-close]').forEach(el => {
+    el.addEventListener('click', () => closeModal(el.dataset.modalClose));
+  });
+
+  const welcomeDismiss = document.getElementById('welcome-dismiss');
+  if (welcomeDismiss) {
+    welcomeDismiss.addEventListener('click', closeWelcomePopup);
+  }
+
+  document.querySelectorAll('.modal-backdrop').forEach(backdrop => {
+    backdrop.addEventListener('click', (e) => {
+      if (e.target !== backdrop) return;
+      const modal = backdrop.closest('[id^="modal-"]');
+      if (!modal) return;
+      closeModal(modal.id.replace('modal-', ''));
+    });
+  });
+}
+
+// helper for filter dropdown
+function handleFilterChange(e) {
+  const status = e.target.value;
+  const cards = document.querySelectorAll('#all-applications > div[data-id]');
+  cards.forEach(card => {
+    const app = applications.find(a => a.id === card.dataset.id);
+    card.style.display = (status === 'all' || app?.status === status) ? 'flex' : 'none';
+  });
+}
+
+// handle any pending action after returning from payment page
+async function handlePendingPayment() {
+  const paymentDone = sessionStorage.getItem('scholaco_payment_complete');
+  if (!paymentDone) return;
+  sessionStorage.removeItem('scholaco_payment_complete');
+  const raw = sessionStorage.getItem('scholaco_pending_action');
+  if (raw) {
+    const action = JSON.parse(raw);
+    sessionStorage.removeItem('scholaco_pending_action');
+    if (action.type === 'add_application') {
+      const { data, error } = await createApplication(action.data);
+      if (!error) showToast('Application added successfully! 🎉');
+      else showToast('Failed to add application', 'error');
+    } else if (action.type === 'edit_application') {
+      const { error } = await updateApplication(action.data.id, action.data);
+      if (!error) showToast('Application updated successfully!');
+      else showToast('Failed to update application', 'error');
+    }
+    await loadApplications();
+  }
+}
+
+// run wiring after DOM loads so we don't rely on inline handlers anywhere
+window.addEventListener('DOMContentLoaded', async () => {
+  wireDashboardActions();
+
+  // wire remaining interactive elements
+  const addForm = document.getElementById('add-application-form');
+  if (addForm) addForm.addEventListener('submit', addApplication);
+  const editForm = document.getElementById('edit-application-form');
+  if (editForm) editForm.addEventListener('submit', saveApplication);
+  const filter = document.getElementById('filter-status');
+  if (filter) filter.addEventListener('change', handleFilterChange);
+
+  // modal opener for add application button
+  const addBtn = document.getElementById('add-application-button');
+  if (addBtn) addBtn.addEventListener('click', () => openModal('add-application'));
+
+  // sign out link should run the sign-out logic, not just navigate
+  const signOutLink = document.querySelector('a[href="index.html"]');
+  if (signOutLink) {
+    signOutLink.addEventListener('click', async (e) => {
+      e.preventDefault();
+      await handleSignOut();
+      window.location.href = 'index.html';
+    });
+  }
+
+  // initialize application state and run any pending action
+  await initApp();
+  await handlePendingPayment();
+
+  setDashboardView('overview');
+});
 
 // Email integration functions
 window.connectGmail = connectGmail;
@@ -570,4 +738,51 @@ export function connectYahoo() {
 export function configureOtherEmail() {
   showToast('IMAP/SMTP configuration coming soon! For now, you can manually check your emails.', 'info');
   // TODO: Implement IMAP/SMTP configuration
+}
+
+function shouldShowWelcome() {
+  return hasWelcomeTrigger() && !hasSeenWelcome();
+}
+
+function setWelcomeTrigger() {
+  try {
+    sessionStorage.setItem(WELCOME_TRIGGER_KEY, 'true');
+    sessionStorage.removeItem(WELCOME_SEEN_KEY);
+  } catch (e) {
+    // ignore
+  }
+}
+
+function hasWelcomeTrigger() {
+  try {
+    return sessionStorage.getItem(WELCOME_TRIGGER_KEY) === 'true';
+  } catch (e) {
+    return false;
+  }
+}
+
+function hasSeenWelcome() {
+  try {
+    return sessionStorage.getItem(WELCOME_SEEN_KEY) === 'true';
+  } catch (e) {
+    return false;
+  }
+}
+
+function markWelcomeSeen() {
+  try {
+    sessionStorage.setItem(WELCOME_SEEN_KEY, 'true');
+    sessionStorage.removeItem(WELCOME_TRIGGER_KEY);
+  } catch (e) {
+    // ignore
+  }
+}
+
+function clearWelcomeState() {
+  try {
+    sessionStorage.removeItem(WELCOME_TRIGGER_KEY);
+    sessionStorage.removeItem(WELCOME_SEEN_KEY);
+  } catch (e) {
+    // ignore
+  }
 }

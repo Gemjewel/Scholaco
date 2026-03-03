@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full">
+<head>
+ <meta charset="UTF-8">
+ <meta name="viewport" content="width=device-width, initial-scale=1.0">
+ <title>Scholaco - Dashboard</title>
+ <script src="https://cdn.tailwindcss.com/3.4.17"></script>  <!-- SDK scripts removed since they aren't used -->
+ <link rel="preconnect" href="https://fonts.googleapis.com">
+ <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+ <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&amp;family=Inter:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet">
+ <script>
+   tailwind.config = {
+     theme: {
+       extend: {
+         colors: {
+           maroon: {
+             50: '#fdf2f4',
+             100: '#fce7eb',
+             200: '#f9d0d9',
+             300: '#f4a9ba',
+             400: '#ec7a94',
+             500: '#df4d6f',
+             600: '#cb2d55',
+             700: '#a91e43',
+             800: '#800020',
+             900: '#6b1a35',
+             950: '#3d0a1a'
+           }
+         }
+       }
+     }
+   }
+ </script>
+ <link rel="stylesheet" href="styles.css">
+ <style>body { box-sizing: border-box; }</style>
+</head>
+<body class="h-full font-body bg-white text-gray-800 overflow-auto">
+
+ <div id="dashboard-page">
+  <div class="min-h-screen bg-gray-50 flex">
+   <div id="sidebar-overlay" class="sidebar-overlay"></div>
+   <aside id="app-sidebar" class="sidebar w-64 bg-white border-r border-gray-200 flex flex-col fixed md:relative h-full z-40 md:z-0">
+    <div class="p-6 border-b border-gray-100">
+     <div class="flex items-center justify-between">
+      <div class="flex items-center gap-3">
+      <div class="flex items-baseline gap-0"><img src="images/logo-maroon.png" alt="Scholaco Logo" class="h-10 w-auto"></div>
+       <div class="flex flex-col"></div>
+      </div><button class="md:hidden p-2 hover:bg-gray-100 rounded-lg">
+       <svg class="w-5 h-5" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg></button>
+     </div>
+    </div>
+    <nav class="flex-1 p-4 space-y-1"><button class="sidebar-item active w-full flex items-center gap-3 px-4 py-3 rounded-xl text-left text-gray-700" data-view="overview">
+      <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" /></svg><span class="font-medium">Dashboard</span> </button> <button class="sidebar-item w-full flex items-center gap-3 px-4 py-3 rounded-xl text-left text-gray-700" data-view="applications">
+      <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg><span class="font-medium">Applications</span> </button> <button class="sidebar-item w-full flex items-center gap-3 px-4 py-3 rounded-xl text-left text-gray-700" data-view="calendar">
+      <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg><span class="font-medium">Calendar</span> </button> <button class="sidebar-item w-full flex items-center gap-3 px-4 py-3 rounded-xl text-left text-gray-700" data-view="email">
+      <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg><span class="font-medium">Email Integration</span> </button> <button class="sidebar-item w-full flex items-center gap-3 px-4 py-3 rounded-xl text-left text-gray-700" data-view="reminders">
+      <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" /></svg><span class="font-medium">Reminders</span> </button>
+    </nav>
+    <div class="p-4 border-t border-gray-100"><a href="index.html" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-gray-600 hover:bg-gray-50 transition-colors">
+      <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" /></svg><span class="font-medium">Sign Out</span> </a>
+    </div>
+   </aside>
+   <main class="dashboard-wrapper flex-1 p-4 sm:p-8 w-full overflow-auto">
+    <!-- Persistent header with Add Application button (always visible on dashboard) -->
+    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-0 mb-8">
+     <div class="flex-1">
+      <!-- Welcome header — hidden on non-overview sections via setDashboardView() -->
+      <header id="welcome-header" class="mb-2">
+       <div class="welcome-content relative">
+        <h1 class="font-display text-2xl sm:text-3xl font-bold text-gray-800">Welcome back, <span class="gradient-text">Sarah</span>! 👋</h1>
+        <p class="text-gray-500 mt-1 text-sm sm:text-base">Here's what's happening with your scholarships today.</p>
+        <button id="welcome-dismiss" aria-label="Dismiss welcome" class="absolute top-0 right-0 p-2 rounded-full hover:bg-gray-100 text-gray-500">✕</button>
+       </div>
+      </header>
+     </div>
+     <!-- Add Application button always visible -->
+     <button id="add-application-button" class="btn-primary px-4 sm:px-6 py-3 rounded-xl text-white font-semibold flex items-center gap-2 w-full sm:w-auto justify-center flex-shrink-0">
+      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" /></svg> Add Application </button>
+    </div>
+
+
+<!-- Dashboard Overview -->
+<div id="dashboard-overview" class="dashboard-view block">
+ <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-8">
+  <div class="glass-card rounded-2xl p-6 card-hover">
+   <div class="flex items-center justify-between mb-4">
+    <div class="w-12 h-12 bg-maroon-100 rounded-xl flex items-center justify-center">
+     <svg class="w-6 h-6 text-maroon-600" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
+    </div><span class="text-xs text-green-600 font-semibold bg-green-100 px-2 py-1 rounded-full">+3 this week</span>
+   </div>
+   <div id="stat-total" class="text-3xl font-bold text-gray-800">0</div>
+   <div class="text-gray-500 text-sm">Total Applications</div>
+  </div>
+  <div class="glass-card rounded-2xl p-6 card-hover">
+   <div class="flex items-center justify-between mb-4">
+    <div class="w-12 h-12 bg-yellow-100 rounded-xl flex items-center justify-center">
+     <svg class="w-6 h-6 text-yellow-600" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+    </div>
+   </div>
+   <div id="stat-progress" class="text-3xl font-bold text-gray-800">0</div>
+   <div class="text-gray-500 text-sm">In Progress</div>
+  </div>
+  <div class="glass-card rounded-2xl p-6 card-hover">
+   <div class="flex items-center justify-between mb-4">
+    <div class="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center">
+     <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+    </div>
+   </div>
+   <div id="stat-awaiting" class="text-3xl font-bold text-gray-800">0</div>
+   <div class="text-gray-500 text-sm">Awaiting Response</div>
+  </div>
+  <div class="glass-card rounded-2xl p-6 card-hover">
+   <div class="flex items-center justify-between mb-4">
+    <div class="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center">
+     <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+    </div>
+   </div>
+   <div id="stat-potential" class="text-3xl font-bold text-gray-800">$0</div>
+   <div class="text-gray-500 text-sm">Potential Awards</div>
+  </div>
+ </div>
+ <div class="glass-card rounded-2xl p-6">
+  <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-0 mb-6">
+   <h2 class="font-display text-xl font-bold">Recent Applications</h2><button type="button" class="text-maroon-600 hover:text-maroon-800 font-medium text-sm" data-view="applications">View All →</button>
+  </div>
+  <div id="recent-applications" class="space-y-4">
+   <div class="text-center py-12 text-gray-400">
+    <svg class="w-16 h-16 mx-auto mb-4 text-gray-300" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
+    <p class="text-lg font-medium">No applications yet</p>
+    <p class="text-sm">Click "Add Application" to get started!</p>
+   </div>
+  </div>
+ </div>
+</div>
+
+<!-- Applications View -->
+<div id="dashboard-applications" class="dashboard-view hidden">
+ <div class="glass-card rounded-2xl p-6">
+  <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-0 mb-6">
+   <h2 class="font-display text-xl font-bold">All Applications</h2><select id="filter-status" class="px-4 py-2 rounded-xl border border-gray-200 text-sm focus:outline-none focus:border-maroon-500 w-full sm:w-auto"> <option value="all">All Status</option> <option value="not_started">Not Started</option> <option value="in_progress">In Progress</option> <option value="awaiting">Awaiting Response</option> </select>
+  </div>
+  <div id="all-applications" class="space-y-4"></div>
+ </div>
+</div>
+
+<!-- Calendar View -->
+<div id="dashboard-calendar" class="dashboard-view hidden">
+ <div class="glass-card rounded-2xl p-6">
+  <h2 class="font-display text-xl font-bold mb-6">Upcoming Deadlines</h2>
+  <div id="calendar-deadlines" class="space-y-4">
+   <div class="text-center py-12 text-gray-400">
+    <svg class="w-16 h-16 mx-auto mb-4 text-gray-300" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+    <p class="text-lg font-medium">No deadlines set</p>
+    <p class="text-sm">Add applications with deadlines to see them here</p>
+   </div>
+  </div>
+ </div>
+</div>
+
+<!-- Email Integration View -->
+<div id="dashboard-email" class="dashboard-view hidden">
+ <div class="glass-card rounded-2xl p-6">
+  <h2 class="font-display text-xl font-bold mb-6">Email Integration</h2>
+  <p class="text-gray-600 mb-8">Connect your email to automatically track scholarship responses and updates.</p>
+  <div class="grid md:grid-cols-2 gap-6">
+   <div class="border-2 border-dashed border-gray-200 rounded-2xl p-6 sm:p-8 text-center hover:border-maroon-300 transition-colors cursor-pointer group">
+    <div class="w-16 h-16 bg-red-50 rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform">
+     <svg class="w-10 h-10" viewbox="0 0 24 24"><path fill="#EA4335" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" /> <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" /> <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" /> <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" /></svg>
+    </div>
+    <h3 class="font-semibold text-lg mb-2">Connect Gmail</h3>
+    <p class="text-gray-500 text-sm">Automatically scan for scholarship emails</p><button class="mt-4 px-6 py-2 bg-maroon-600 text-white rounded-full text-sm font-medium hover:bg-maroon-700 transition-colors">Connect</button>
+   </div>
+   <div class="border-2 border-dashed border-gray-200 rounded-2xl p-6 sm:p-8 text-center hover:border-maroon-300 transition-colors cursor-pointer group">
+    <div class="w-16 h-16 bg-blue-50 rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform">
+     <svg class="w-10 h-10" viewbox="0 0 24 24" fill="#0078D4"><path d="M22 6c0-1.1-.9-2-2-2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6zm-2 0l-8 5-8-5h16zm0 12H4V8l8 5 8-5v10z" /></svg>
+    </div>
+    <h3 class="font-semibold text-lg mb-2">Connect Outlook</h3>
+    <p class="text-gray-500 text-sm">Sync your Microsoft email account</p><button class="mt-4 px-6 py-2 bg-maroon-600 text-white rounded-full text-sm font-medium hover:bg-maroon-700 transition-colors">Connect</button>
+   </div>
+   <div class="border-2 border-dashed border-gray-200 rounded-2xl p-6 sm:p-8 text-center hover:border-maroon-300 transition-colors cursor-pointer group">
+    <div class="w-16 h-16 bg-purple-50 rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform">
+     <svg class="w-10 h-10 text-purple-600" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>
+    </div>
+    <h3 class="font-semibold text-lg mb-2">Connect Yahoo Mail</h3>
+    <p class="text-gray-500 text-sm">Link your Yahoo email account</p><button class="mt-4 px-6 py-2 bg-maroon-600 text-white rounded-full text-sm font-medium hover:bg-maroon-700 transition-colors">Connect</button>
+   </div>
+   <div class="border-2 border-dashed border-gray-200 rounded-2xl p-6 sm:p-8 text-center hover:border-maroon-300 transition-colors cursor-pointer group">
+    <div class="w-16 h-16 bg-gray-100 rounded-2xl flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform">
+     <svg class="w-10 h-10 text-gray-600" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" /></svg>
+    </div>
+    <h3 class="font-semibold text-lg mb-2">Other Email</h3>
+    <p class="text-gray-500 text-sm">Connect via IMAP/SMTP</p><button class="mt-4 px-6 py-2 bg-maroon-600 text-white rounded-full text-sm font-medium hover:bg-maroon-700 transition-colors">Configure</button>
+   </div>
+  </div>
+ </div>
+</div>
+
+<!-- Reminders View -->
+<div id="dashboard-reminders" class="dashboard-view hidden">
+ <div class="glass-card rounded-2xl p-6">
+  <h2 class="font-display text-xl font-bold mb-6">Reminders</h2>
+  <div id="reminders-list" class="space-y-4">
+   <div class="text-center py-12 text-gray-400">
+    <svg class="w-16 h-16 mx-auto mb-4 text-gray-300" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" /></svg>
+    <p class="text-lg font-medium">No reminders set</p>
+    <p class="text-sm">Add reminders to your applications to stay on track</p>
+   </div>
+  </div>
+ </div>
+</div>
+
+
+   </main>
+  </div>
+ </div>
+
+ <!-- Add Application Modal -->
+
+ <div id="modal-add-application" class="fixed inset-0 z-50 hidden">
+  <div class="modal-backdrop absolute inset-0"></div>
+  <div class="absolute inset-0 flex items-center justify-center p-4 pointer-events-none">
+   <div class="glass-card rounded-2xl p-6 sm:p-8 w-full max-w-lg shadow-2xl pointer-events-auto animate-fade-in-up max-h-[90vh] overflow-y-auto">
+    <div class="flex items-center justify-between mb-6">
+     <h2 class="font-display text-2xl font-bold">Add New Application</h2><button type="button" data-modal-close="add-application" class="w-10 h-10 rounded-full hover:bg-gray-100 flex items-center justify-center transition-colors flex-shrink-0">
+      <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg></button>
+    </div>
+    <form id="add-application-form" class="space-y-5">
+     <div><label for="app-name" class="block text-sm font-medium text-gray-700 mb-2">Scholarship Name *</label> <input type="text" id="app-name" class="w-full px-4 py-3 rounded-xl border border-gray-200 input-focus outline-none transition-all" placeholder="e.g., Gates Scholarship" required>
+     </div>
+     <div><label for="app-org" class="block text-sm font-medium text-gray-700 mb-2">Organization</label> <input type="text" id="app-org" class="w-full px-4 py-3 rounded-xl border border-gray-200 input-focus outline-none transition-all" placeholder="e.g., Bill &amp; Melinda Gates Foundation">
+     </div>
+     <div class="grid grid-cols-2 gap-4">
+      <div><label for="app-amount" class="block text-sm font-medium text-gray-700 mb-2">Award Amount</label> <input type="text" id="app-amount" class="w-full px-4 py-3 rounded-xl border border-gray-200 input-focus outline-none transition-all" placeholder="e.g., $10,000">
+      </div>
+      <div><label for="app-deadline" class="block text-sm font-medium text-gray-700 mb-2">Deadline</label> <input type="date" id="app-deadline" class="w-full px-4 py-3 rounded-xl border border-gray-200 input-focus outline-none transition-all">
+      </div>
+     </div>
+     <div><label for="app-status" class="block text-sm font-medium text-gray-700 mb-2">Status</label> <select id="app-status" class="w-full px-4 py-3 rounded-xl border border-gray-200 input-focus outline-none transition-all"> <option value="not_started">Not Started</option> <option value="in_progress">In Progress</option> <option value="awaiting">Completed / Awaiting Response</option> </select>
+     </div>
+     <div><label for="app-reminder" class="block text-sm font-medium text-gray-700 mb-2">Set Reminder</label> <input type="datetime-local" id="app-reminder" class="w-full px-4 py-3 rounded-xl border border-gray-200 input-focus outline-none transition-all">
+     </div>
+     <div><label for="app-notes" class="block text-sm font-medium text-gray-700 mb-2">Notes</label> <textarea id="app-notes" rows="3" class="w-full px-4 py-3 rounded-xl border border-gray-200 input-focus outline-none transition-all resize-none" placeholder="Any additional notes..."></textarea>
+     </div>
+     <div class="flex flex-col sm:flex-row gap-4 pt-4"><button type="button" data-modal-close="add-application" class="flex-1 px-6 py-3 rounded-xl border border-gray-200 text-gray-700 font-semibold hover:bg-gray-50 transition-colors">Cancel</button> <button type="submit" id="add-app-btn" class="flex-1 btn-primary px-6 py-3 rounded-xl text-white font-semibold">Add Application</button>
+     </div>
+    </form>
+   </div>
+  </div>
+ </div>
+
+ <!-- Edit Application Modal -->
+
+ <div id="modal-edit-application" class="fixed inset-0 z-50 hidden">
+  <div class="modal-backdrop absolute inset-0"></div>
+  <div class="absolute inset-0 flex items-center justify-center p-4 pointer-events-none">
+   <div class="glass-card rounded-2xl p-6 sm:p-8 w-full max-w-lg shadow-2xl pointer-events-auto animate-fade-in-up max-h-[90vh] overflow-y-auto">
+    <div class="flex items-center justify-between mb-6">
+     <h2 class="font-display text-2xl font-bold">Edit Application</h2><button type="button" data-modal-close="edit-application" class="w-10 h-10 rounded-full hover:bg-gray-100 flex items-center justify-center transition-colors flex-shrink-0">
+      <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg></button>
+    </div>
+    <form id="edit-application-form" class="space-y-5"><input type="hidden" id="edit-app-id">
+     <div><label for="edit-app-name" class="block text-sm font-medium text-gray-700 mb-2">Scholarship Name *</label> <input type="text" id="edit-app-name" class="w-full px-4 py-3 rounded-xl border border-gray-200 input-focus outline-none transition-all" required>
+     </div>
+     <div><label for="edit-app-org" class="block text-sm font-medium text-gray-700 mb-2">Organization</label> <input type="text" id="edit-app-org" class="w-full px-4 py-3 rounded-xl border border-gray-200 input-focus outline-none transition-all">
+     </div>
+     <div class="grid grid-cols-2 gap-4">
+      <div><label for="edit-app-amount" class="block text-sm font-medium text-gray-700 mb-2">Award Amount</label> <input type="text" id="edit-app-amount" class="w-full px-4 py-3 rounded-xl border border-gray-200 input-focus outline-none transition-all">
+      </div>
+      <div><label for="edit-app-deadline" class="block text-sm font-medium text-gray-700 mb-2">Deadline</label> <input type="date" id="edit-app-deadline" class="w-full px-4 py-3 rounded-xl border border-gray-200 input-focus outline-none transition-all">
+      </div>
+     </div>
+     <div><label for="edit-app-status" class="block text-sm font-medium text-gray-700 mb-2">Status</label> <select id="edit-app-status" class="w-full px-4 py-3 rounded-xl border border-gray-200 input-focus outline-none transition-all"> <option value="not_started">Not Started</option> <option value="in_progress">In Progress</option> <option value="awaiting">Completed / Awaiting Response</option> </select>
+     </div>
+     <div><label for="edit-app-reminder" class="block text-sm font-medium text-gray-700 mb-2">Set Reminder</label> <input type="datetime-local" id="edit-app-reminder" class="w-full px-4 py-3 rounded-xl border border-gray-200 input-focus outline-none transition-all">
+     </div>
+     <div><label for="edit-app-notes" class="block text-sm font-medium text-gray-700 mb-2">Notes</label> <textarea id="edit-app-notes" rows="3" class="w-full px-4 py-3 rounded-xl border border-gray-200 input-focus outline-none transition-all resize-none"></textarea>
+     </div>
+     <div class="flex flex-col sm:flex-row gap-4 pt-4"><button type="button" data-modal-close="edit-application" class="flex-1 px-6 py-3 rounded-xl border border-gray-200 text-gray-700 font-semibold hover:bg-gray-50 transition-colors">Cancel</button> <button type="submit" id="edit-app-btn" class="flex-1 btn-primary px-6 py-3 rounded-xl text-white font-semibold">Save Changes</button>
+     </div>
+    </form>
+   </div>
+  </div>
+ </div>
+
+ <!-- Toast Container -->
+
+ <div id="toast-container" class="fixed bottom-6 right-6 z-50 space-y-3"></div>
+
+ <script type="module" src="/src/js/app.js"></script>
+
+
+
+</body>
+</html>

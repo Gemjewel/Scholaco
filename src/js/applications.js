@@ -5,8 +5,17 @@
 
 import { supabase } from './supabase.js';
 
+const CONFIG_ERROR_MESSAGE =
+  "Supabase is not configured. Add VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY to your .env file and restart Vite.";
+
+function missingSupabaseResult() {
+  return { data: null, error: new Error(CONFIG_ERROR_MESSAGE) };
+}
+
 // Get all applications for current user
 export async function getAllApplications() {
+  if (!supabase) return { data: [], error: new Error(CONFIG_ERROR_MESSAGE) };
+
   // We check for the user first to ensure we only fetch their data
   const { data: { user } } = await supabase.auth.getUser();
   
@@ -23,6 +32,8 @@ export async function getAllApplications() {
 
 // Create new application
 export async function createApplication(appData) {
+  if (!supabase) return missingSupabaseResult();
+
   // Get the current user session
   const { data: { user }, error: authError } = await supabase.auth.getUser();
   
@@ -52,6 +63,8 @@ export async function createApplication(appData) {
 
 // Update application
 export async function updateApplication(id, updates) {
+  if (!supabase) return missingSupabaseResult();
+
   const { data, error } = await supabase
     .from('applications')
     .update(updates)
@@ -64,6 +77,8 @@ export async function updateApplication(id, updates) {
 
 // Delete application
 export async function deleteApplication(id) {
+  if (!supabase) return { error: new Error(CONFIG_ERROR_MESSAGE) };
+
   const { error } = await supabase
     .from('applications')
     .delete()
